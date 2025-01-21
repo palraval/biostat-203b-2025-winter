@@ -35,6 +35,8 @@ sessionInfo()
 
 5. After this course, you can make this repository public and use it to demonstrate your skill sets on job market.
 
+**Solution: Done**
+
 ## Q2. Data ethics training
 
 This exercise (and later in this course) uses the [MIMIC-IV data v3.1](https://physionet.org/content/mimiciv/3.1/), a freely accessible critical care database developed by the MIT Lab for Computational Physiology. Follow the instructions at <https://mimic.mit.edu/docs/gettingstarted/> to (1) complete the CITI `Data or Specimens Only Research` course and (2) obtain the PhysioNet credential for using the MIMIC-IV data. Display the verification links to your completion report and completion certificate here. **You must complete Q2 before working on the remaining questions.** (Hint: The CITI training takes a few hours and the PhysioNet credentialing takes a couple days; do not leave it to the last minute.)
@@ -57,6 +59,16 @@ Refer to the documentation <https://physionet.org/content/mimiciv/3.1/> for deta
   Use Bash commands to answer following questions.
 
 2. Display the contents in the folders `hosp` and `icu` using Bash command `ls -l`. Why are these data files distributed as `.csv.gz` files instead of `.csv` (comma separated values) files? Read the page <https://mimic.mit.edu/docs/iv/> to understand what's in each folder.
+
+```{bash}
+ls -l ~/mimic/hosp
+```
+```{bash}
+ls -l ~/mimic/icu
+```
+
+**Solution: Both icu and hosp contain large amounts of data. Hosp contains detailed information about the patient at a hospital-level, while icu contains detailed information about ICU admissions. Due to the large volume of data, the data files must be compressed in order to reduce the overall size of the data files, which is why they are .csv.gz and not just .csv** 
+
 
 3. Briefly describe what Bash commands `zcat`, `zless`, `zmore`, and `zgrep` do.
 
