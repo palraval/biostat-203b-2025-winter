@@ -72,6 +72,9 @@ ls -l ~/mimic/icu
 
 3. Briefly describe what Bash commands `zcat`, `zless`, `zmore`, and `zgrep` do.
 
+**Solution: 'zcat' allows for the viewing of compressed files(.gz) without requiring the decompressing of the file first. 'zless' also allows for the viewing of compressed files, but is done so in a way that scrolling is utilized to scan through the entire text in the data file. 'zmore' allows for the viewing of compressed files in one large chunk at a time. 'zgrep' helps with searching through a compressed file for a specific text within the file in question.**
+
+
 4. (Looping in Bash) What's the output of the following bash script?
 ```{bash}
 #| eval: false
