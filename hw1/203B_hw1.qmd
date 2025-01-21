@@ -136,22 +136,36 @@ zcat < ~/mimic/hosp/patients.csv.gz | awk -F, '{print $1}' | tail -n +2 | uniq |
 
 6. What are the possible values taken by each of the variable `admission_type`, `admission_location`, `insurance`, and `ethnicity`? Also report the count for each unique value of these variables in decreasing order. (Hint: combine Linux commands `zcat`, `head`/`tail`, `awk`, `uniq -c`, `wc`, `sort`, and so on; skip the header line.)
 
+```{bash}
 
+zcat < ~/mimic/hosp/admissions.csv.gz | awk -F, '{print $6}' | tail -n +2 | sort | uniq -c | sort -nr
 
+```
+```{bash}
 
+zcat < ~/mimic/hosp/admissions.csv.gz | awk -F, '{print $8}' | tail -n +2 | sort | uniq -c | sort -nr
 
+```
+```{bash}
 
+zcat < ~/mimic/hosp/admissions.csv.gz | awk -F, '{print $10}' | tail -n +2 | sort | uniq -c | sort -nr
 
+```
+```{bash}
 
+zcat < ~/mimic/hosp/admissions.csv.gz | awk -F, '{print $13}' | tail -n +2 | sort | uniq -c | sort -nr
 
+```
 
-
-
+**Solution: Above are all the possible values and the number of appearances of each for 4 columns in the 'admissions.csv.gz' data file(`admission_type`, `admission_location`, `insurance`, and `race`).** 
 
 
 7. The `icusays.csv.gz` file contains all the ICU stays during the study period. How many ICU stays, identified by `stay_id`, are in this data file? How many unique patients, identified by `subject_id`, are in this data file?
 
 8. _To compress, or not to compress. That's the question._ Let's focus on the big data file `labevents.csv.gz`. Compare compressed gz file size to the uncompressed file size. Compare the run times of `zcat < ~/mimic/labevents.csv.gz | wc -l` versus `wc -l labevents.csv`. Discuss the trade off between storage and speed for big data files. (Hint: `gzip -dk < FILENAME.gz > ./FILENAME`. Remember to delete the large `labevents.csv` file after the exercise.)
+
+
+
 
 ## Q4. Who's popular in Price and Prejudice
 
