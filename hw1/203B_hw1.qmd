@@ -102,7 +102,52 @@ done
 
 5. Display the first few lines of `admissions.csv.gz`. How many rows are in this data file, excluding the header line? Each `hadm_id` identifies a hospitalization. How many hospitalizations are in this data file? How many unique patients (identified by `subject_id`) are in this data file? Do they match the number of patients listed in the `patients.csv.gz` file? (Hint: combine Linux commands `zcat <`, `head`/`tail`, `awk`, `sort`, `uniq`, `wc`, and so on.)
 
+```{bash}
+zcat < ~/mimic/hosp/admissions.csv.gz | head -5
+```
+**Solution: Above is the first 5 lines of the 'admissions.csv.gz' file.**
+
+```{bash}
+
+zcat < ~/mimic/hosp/admissions.csv.gz | tail -n +2 | wc -l
+
+```
+
+**Solution: There are 546028 rows in the 'admissions.csv.gz' file without the header line.**
+
+```{bash}
+
+zcat < ~/mimic/hosp/admissions.csv.gz | awk -F, '{print $2}' | tail -n +2 | sort | uniq | wc -l  
+
+```       
+
+**Solution: There are 546028 hospitalizations in this data file.**
+
+```{bash}
+zcat < ~/mimic/hosp/admissions.csv.gz | awk -F, '{print $1}' | tail -n +2 | uniq | wc -l  
+```
+
+```{bash}
+zcat < ~/mimic/hosp/patients.csv.gz | awk -F, '{print $1}' | tail -n +2 | uniq | wc -l  
+```
+
+**Solution: There are 223452 unique patients in the 'admissions.csv.gz' data file. No, it does not match the number of patients in the 'patients.csv.gz' data file since it had 364627 unique values.**
+
+
 6. What are the possible values taken by each of the variable `admission_type`, `admission_location`, `insurance`, and `ethnicity`? Also report the count for each unique value of these variables in decreasing order. (Hint: combine Linux commands `zcat`, `head`/`tail`, `awk`, `uniq -c`, `wc`, `sort`, and so on; skip the header line.)
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 7. The `icusays.csv.gz` file contains all the ICU stays during the study period. How many ICU stays, identified by `stay_id`, are in this data file? How many unique patients, identified by `subject_id`, are in this data file?
 
