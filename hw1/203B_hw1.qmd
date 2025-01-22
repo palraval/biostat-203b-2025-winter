@@ -141,16 +141,19 @@ zcat < ~/mimic/hosp/patients.csv.gz | awk -F, '{print $1}' | tail -n +2 | uniq |
 zcat < ~/mimic/hosp/admissions.csv.gz | awk -F, '{print $6}' | tail -n +2 | sort | uniq -c | sort -nr
 
 ```
+
 ```{bash}
 
 zcat < ~/mimic/hosp/admissions.csv.gz | awk -F, '{print $8}' | tail -n +2 | sort | uniq -c | sort -nr
 
 ```
+
 ```{bash}
 
 zcat < ~/mimic/hosp/admissions.csv.gz | awk -F, '{print $10}' | tail -n +2 | sort | uniq -c | sort -nr
 
 ```
+
 ```{bash}
 
 zcat < ~/mimic/hosp/admissions.csv.gz | awk -F, '{print $13}' | tail -n +2 | sort | uniq -c | sort -nr
@@ -180,6 +183,7 @@ zcat < ~/mimic/icu/icustays.csv.gz | awk -F, '{print $1}' | tail -n +2 | uniq | 
 
 
 
+
 ## Q4. Who's popular in Price and Prejudice
 
 1. You and your friend just have finished reading *Pride and Prejudice* by Jane Austen. Among the four main characters in the book, Elizabeth, Jane, Lydia, and Darcy, your friend thinks that Darcy was the most mentioned. You, however, are certain it was Elizabeth. Obtain the full text of the novel from <http://www.gutenberg.org/cache/epub/42671/pg42671.txt> and save to your local folder. 
@@ -188,15 +192,20 @@ zcat < ~/mimic/icu/icustays.csv.gz | awk -F, '{print $1}' | tail -n +2 | uniq | 
 wget -nc http://www.gutenberg.org/cache/epub/42671/pg42671.txt
 ```
 Explain what `wget -nc` does. Do **not** put this text file `pg42671.txt` in Git. Complete the following loop to tabulate the number of times each of the four characters is mentioned using Linux commands.
+
+**Solution: 'wget -nc' downloads a file from the web. '-nc' makes it so it will not download the file if a file with the same name already exists on my device.**
+
+
 ```{bash}
 #| eval: false
-wget -nc http://www.gutenberg.org/cache/epub/42671/pg42671.txt
 for char in Elizabeth Jane Lydia Darcy
 do
   echo $char:
-  # some bash commands here
+  grep -w -o $char pg42671.txt | wc -l 
 done
 ```
+**Solution: Elizabeth is mentioned the most in this novel compared to the other names. Her name was mentioned 634 times, while Jane was mentioned 293 times, Lydia was mentioned 170 times, and Darcy was mentioned 416 times.**
+
 
 2. What's the difference between the following two commands?
 ```{bash}
@@ -209,19 +218,37 @@ and
 echo 'hello, world' >> test2.txt
 ```
 
+
+**Solution: The first command will direct the output from one command to a file. It will either overwrite the contents of the file if it already exists or create the file and write 'hello,world' into it. The second command appends the output to a file. It will either add 'hello, world' to the file at the end if it already exists, or create a new file and write it there.** 
+
+
 3. Using your favorite text editor (e.g., `vi`), type the following and save the file as `middle.sh`:
+
 ```{bash eval=FALSE}
 #!/bin/sh
 # Select lines from the middle of a file.
 # Usage: bash middle.sh filename end_line num_lines
 head -n "$2" "$1" | tail -n "$3"
 ```
+
 Using `chmod` to make the file executable by the owner, and run
+
+```{bash}
+chmod u+x ~/middle.sh
+```
+
+```{bash}
+ls -l ~/middle.sh
+```
+
 ```{bash}
 #| eval: false
-./middle.sh pg42671.txt 20 5
+~/middle.sh pg42671.txt 20 5
 ```
 Explain the output. Explain the meaning of `"$1"`, `"$2"`, and `"$3"` in this shell script. Why do we need the first line of the shell script?
+
+**Solution: `"$1"`, `"$2"`, and `"$3"` are the numerical order of the arguments. For the code '~/middle.sh pg42671.txt 20 5', `"$1` will be the first argument, which is 'pg42671.txt'. `"$2"` will be the second argument, which is "20". `"$3"` is the third argument, which is "5". The inputted arguments will be substituted in their appropriate positions in the 'middle.sh' code, so it will end up running: "head -n 20 pg42671.txt | tail -n 5". This line of code gets the first 20 lines in the 'pg42671.txt' file and then will return the final 5 lines of the first 20 lines in the file. You need the first line because it tells the respective system to use /bin/sh interpreter to run the 'middle.sh' script.**
+
 
 ## Q5. More fun with Linux
 
