@@ -254,6 +254,109 @@ Explain the output. Explain the meaning of `"$1"`, `"$2"`, and `"$3"` in this sh
 
 Try following commands in Bash and interpret the results: `cal`, `cal 2025`, `cal 9 1752` (anything unusual?), `date`, `hostname`, `arch`, `uname -a`, `uptime`, `who am i`, `who`, `w`, `id`, `last | head`, `echo {con,pre}{sent,fer}{s,ed}`, `time sleep 5`, `history | tail`.
 
+```{bash}
+cal
+```
+**'cal' gives the calendar dates for the current month, which is January 2025.**
+
+```{bash}
+cal 2025
+```
+
+**'cal 2025' gives the calendar dates of all of 2025.**
+
+
+```{bash}
+cal 9 1752
+```
+**'cal 9 1752' gives the calendar dates of September 1752. The dates 3-11 are missing in this month.**
+
+
+```{bash}
+date
+```
+
+**'date' gives the date, time in respective timezone, and year at the time of running the code.**
+
+```{bash}
+hostname
+```
+
+**'hostname' gives the device name.**
+
+```{bash}
+arch
+```
+
+**'arch' tells about my system's hardware architecture.**
+
+```{bash}
+uname -a
+```
+
+**'uname -a' gives all information about my system.**
+
+```{bash}
+uptime
+```
+
+**'uptime' shows the amount of time the system has been running. It also provides information about the current time, how many users are logged in, and the system's load averages.**
+
+```{bash}
+who am i
+```
+
+**'who am i' shows the username of the user who executed the command.**
+
+
+```{bash}
+who
+```
+
+**'who' shows more information about all the users. It gives the username, the device, and the appropriate log-in time.** 
+
+
+```{bash}
+w
+```
+
+**'w' gives more information about all the users. It gives: USER(username), TTY(terminal), FROM, LONGIN@, IDLE, and WHAT.** 
+
+
+```{bash}
+id
+```
+
+**'id' gives user ID, group ID, and groups that the user is a part of.**
+
+
+```{bash}
+last | head
+```
+**'last | head' shows the 10 most recent logins in the system and gives the username, terminal, date of login, and login duration.**
+
+
+
+```{bash}
+echo {con,pre}{sent,fer}{s,ed}
+```
+
+**'echo {con,pre}{sent,fer}{s,ed}' gives all the possible combinations of words that can be formed using the 3 sets of 2 words.**
+
+
+```{bash}
+time sleep 5 
+```
+**'time sleep 5' pauses the system for 5 seconds and provides information about how long it took to complete this command, how long it was in user mode, and how much it was in kernel mode.**
+
+
+```{bash}
+history | tail
+```
+
+**When I ran this code in my terminal, it gave me the past 10 commands I ran.**
+
+
 ## Q6. Book
 
 1. Git clone the repository <https://github.com/christophergandrud/Rep-Res-Book> for the book _Reproducible Research with R and RStudio_ to your local machine. Do **not** put this repository within your homework repository `biostat-203b-2025-winter`.
