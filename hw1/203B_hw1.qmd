@@ -35,7 +35,7 @@ sessionInfo()
 
 5. After this course, you can make this repository public and use it to demonstrate your skill sets on job market.
 
-**Solution: Done**
+**Solution: I completed all these steps and have a GitHub repository with `main` and `develop` branches.**
 
 ## Q2. Data ethics training
 
@@ -54,6 +54,7 @@ Here is the [Completion Report](https://www.citiprogram.org/verify/?kf7af8d06-4f
 # content of mimic folder
 ls -l ~/mimic/
 ```
+
 Refer to the documentation <https://physionet.org/content/mimiciv/3.1/> for details of data files. Do **not** put these data files into Git; they are big. Do **not** copy them into your directory. Do **not** decompress the gz data files. These create unnecessary big files and are not big-data-friendly practices. Read from the data folder `~/mimic` directly in following exercises. 
 
   Use Bash commands to answer following questions.
@@ -63,6 +64,7 @@ Refer to the documentation <https://physionet.org/content/mimiciv/3.1/> for deta
 ```{bash}
 ls -l ~/mimic/hosp
 ```
+
 ```{bash}
 ls -l ~/mimic/icu
 ```
@@ -72,7 +74,7 @@ ls -l ~/mimic/icu
 
 3. Briefly describe what Bash commands `zcat`, `zless`, `zmore`, and `zgrep` do.
 
-**Solution: 'zcat' allows for the viewing of compressed files(.gz) without requiring the decompressing of the file first. 'zless' also allows for the viewing of compressed files, but is done so in a way that scrolling is utilized to scan through the entire text in the data file. 'zmore' allows for the viewing of compressed files in one large chunk at a time. 'zgrep' helps with searching through a compressed file for a specific text within the file in question.**
+**Solution: 'zcat' allows for the entire viewing of compressed files(.gz), but will temporarily decompress the file first. 'zless' allows for the viewing of compressed files, but is done so in a way that scrolling is utilized to scan through the entire text in the data file. 'zmore' allows for the viewing of compressed files one bunch/grouping/chunk at a time. 'zgrep' helps with searching through a compressed file for a specific text within the file in question.**
 
 
 4. (Looping in Bash) What's the output of the following bash script?
@@ -84,7 +86,7 @@ do
 done
 ```
 
-**Solution: The output of the script gives 3 files: 'admissions.csv.gz', 'labevents.csv.gz', and 'patients.csv.gz'.** 
+**Solution: The output of the script gives information about permissions, user name, group name, file size, etc. for these 3 files: 'admissions.csv.gz', 'labevents.csv.gz', and 'patients.csv.gz'.** 
 
 
 Display the number of lines in each data file using a similar loop. (Hint: combine linux commands `zcat <` and `wc -l`.)
@@ -97,7 +99,7 @@ do
 done
 ```
 
-**Solution: 'admissions.csv.gz' has 546029 lines, 'labevents.csv.gz' has 158374765 lines , and 'patients.csv.gz' has 364628 lines.**
+**Solution: 'admissions.csv.gz' has 546029 lines, 'labevents.csv.gz' has 158374765 lines, and 'patients.csv.gz' has 364628 lines.**
 
 
 5. Display the first few lines of `admissions.csv.gz`. How many rows are in this data file, excluding the header line? Each `hadm_id` identifies a hospitalization. How many hospitalizations are in this data file? How many unique patients (identified by `subject_id`) are in this data file? Do they match the number of patients listed in the `patients.csv.gz` file? (Hint: combine Linux commands `zcat <`, `head`/`tail`, `awk`, `sort`, `uniq`, `wc`, and so on.)
@@ -108,17 +110,13 @@ zcat < ~/mimic/hosp/admissions.csv.gz | head -5
 **Solution: Above is the first 5 lines of the 'admissions.csv.gz' file.**
 
 ```{bash}
-
 zcat < ~/mimic/hosp/admissions.csv.gz | tail -n +2 | wc -l
-
 ```
 
 **Solution: There are 546028 rows in the 'admissions.csv.gz' file without the header line.**
 
 ```{bash}
-
-zcat < ~/mimic/hosp/admissions.csv.gz | awk -F, '{print $2}' | tail -n +2 | sort | uniq | wc -l  
-
+zcat < ~/mimic/hosp/admissions.csv.gz | awk -F, '{print $2}' | tail -n +2 | sort | uniq | wc -l
 ```       
 
 **Solution: There are 546028 hospitalizations in this data file.**
@@ -137,38 +135,28 @@ zcat < ~/mimic/hosp/patients.csv.gz | awk -F, '{print $1}' | tail -n +2 | uniq |
 6. What are the possible values taken by each of the variable `admission_type`, `admission_location`, `insurance`, and `ethnicity`? Also report the count for each unique value of these variables in decreasing order. (Hint: combine Linux commands `zcat`, `head`/`tail`, `awk`, `uniq -c`, `wc`, `sort`, and so on; skip the header line.)
 
 ```{bash}
-
 zcat < ~/mimic/hosp/admissions.csv.gz | awk -F, '{print $6}' | tail -n +2 | sort | uniq -c | sort -nr
-
 ```
 
 ```{bash}
-
 zcat < ~/mimic/hosp/admissions.csv.gz | awk -F, '{print $8}' | tail -n +2 | sort | uniq -c | sort -nr
-
 ```
 
 ```{bash}
-
 zcat < ~/mimic/hosp/admissions.csv.gz | awk -F, '{print $10}' | tail -n +2 | sort | uniq -c | sort -nr
-
 ```
 
 ```{bash}
-
 zcat < ~/mimic/hosp/admissions.csv.gz | awk -F, '{print $13}' | tail -n +2 | sort | uniq -c | sort -nr
-
 ```
 
-**Solution: Above are all the possible values and the number of appearances of each for 4 columns in the 'admissions.csv.gz' data file(`admission_type`, `admission_location`, `insurance`, and `race`).** 
+**Solution: Above are all the possible values and the number of appearances of each for 4 columns in the 'admissions.csv.gz' data file(`admission_type`, `admission_location`, `insurance`, and `race`) in decreasing order.** 
 
 
 7. The `icusays.csv.gz` file contains all the ICU stays during the study period. How many ICU stays, identified by `stay_id`, are in this data file? How many unique patients, identified by `subject_id`, are in this data file?
 
 ```{bash}
-
-zcat < ~/mimic/icu/icustays.csv.gz | awk -F, '{print $3}' | tail -n +2 | uniq | wc -l 
-
+zcat < ~/mimic/icu/icustays.csv.gz | awk -F, '{print $3}' | tail -n +2 | wc -l 
 ```
 
 ```{bash}
@@ -181,21 +169,33 @@ zcat < ~/mimic/icu/icustays.csv.gz | awk -F, '{print $1}' | tail -n +2 | uniq | 
 8. _To compress, or not to compress. That's the question._ Let's focus on the big data file `labevents.csv.gz`. Compare compressed gz file size to the uncompressed file size. Compare the run times of `zcat < ~/mimic/labevents.csv.gz | wc -l` versus `wc -l labevents.csv`. Discuss the trade off between storage and speed for big data files. (Hint: `gzip -dk < FILENAME.gz > ./FILENAME`. Remember to delete the large `labevents.csv` file after the exercise.)
 
 ```{bash}
+gzip -dk < ~/mimic/hosp/labevents.csv.gz > ./labevents.csv
+```
+
+```{bash}
 wc -c < ~/mimic/hosp/labevents.csv.gz
 ```
 
 ```{bash}
-time zcat < ~/mimic/labevents.csv.gz | wc -l
+time zcat < ~/mimic/hosp/labevents.csv.gz | wc -l
 ```
 ```{bash}
-time wc -l labevents.csv
+time wc -l ./labevents.csv
 ```
+
 ```{bash}
-wc -c < labevents.csv
+wc -c < ./labevents.csv
 ```
 
-**Solution: The compressed labevents file has 2592909134 bytes(2.41 GB) and takes 0.002 seconds to run, while the uncompressed labevents file has 9624879104 bytes(8.86 GB) and takes 12.788 seconds to run.**
+**Solution: The compressed labevents file has 2592909134 bytes(2.41 GB) and took around 39.731 seconds to run, while the uncompressed labevents file has 9624879104 bytes(8.86 GB) and took about 16.904 seconds to run. Typically, smaller files will run faster than larger files. However, csv.gz first need to be uncompressed when using `zcat` before the `ls -l` command is run, which takes a while. The .csv file has already been uncompressed, so while it will take up more storage, it will also run faster since it only needs to run the command.**
 
+trade off between storage and speed for big data files
+
+```{bash}
+rm ./labevents.csv
+```
+
+**The uncompressed labevents.csv file has been removed**
 
 ## Q4. Who's popular in Price and Prejudice
 
@@ -253,6 +253,8 @@ chmod u+x ~/middle.sh
 ```{bash}
 ls -l ~/middle.sh
 ```
+
+**Solution: The `middle.sh` file is now executable by the owner.**
 
 ```{bash}
 #| eval: false
@@ -319,7 +321,7 @@ uptime
 who am i
 ```
 
-**'who am i' shows the username of the user who executed the command.**
+**'who am i' shows the username of the user who executed the command and when they did.**
 
 
 ```{bash}
@@ -354,7 +356,7 @@ last | head
 echo {con,pre}{sent,fer}{s,ed}
 ```
 
-**'echo {con,pre}{sent,fer}{s,ed}' gives all the possible combinations of words that can be formed using the 3 sets of 2 words.**
+**'echo {con,pre}{sent,fer}{s,ed}' prints all the possible combinations of words that can be formed using the 3 sets of 2 words.**
 
 
 ```{bash}
@@ -367,7 +369,7 @@ time sleep 5
 history | tail
 ```
 
-**When I ran this code in my terminal, it gave me the past 10 commands I ran.**
+**When I ran this code in my terminal, it gave me the past 10 commands I ran. Running it in this bash code box did not provide me with any results.**
 
 
 ## Q6. Book
@@ -380,7 +382,7 @@ The point of this exercise is (1) to obtain the book for free and (2) to see an 
 
 For grading purpose, include a screenshot of Section 4.1.5 of the book here.
 
-Here is the ![screenshot](Q6_screenshot.png). 
+Here it is ![screenshot](Q6_screenshot.png). 
 
 
 
