@@ -3,16 +3,8 @@ title: "Biostat 203B Homework 1"
 subtitle: Due Jan 24, 2024 @ 11:59PM
 author: Palash Raval and 406551574
 format:
-  html:
-    theme: cosmo
-    embed-resources: true
-    number-sections: false
-    toc: true
-    toc-depth: 4
-    toc-location: left
-    code-fold: false
-    link-external-icon: true
-    link-external-newwindow: true
+  pdf: default
+    
 ---
 
 Display machine information for reproducibility:
@@ -172,6 +164,7 @@ zcat < ~/mimic/icu/icustays.csv.gz | awk -F, '{print $1}' | tail -n +2 | uniq | 
 gzip -dk < ~/mimic/hosp/labevents.csv.gz > ./labevents.csv
 ```
 
+
 ```{bash}
 wc -c < ~/mimic/hosp/labevents.csv.gz
 ```
@@ -179,6 +172,7 @@ wc -c < ~/mimic/hosp/labevents.csv.gz
 ```{bash}
 time zcat < ~/mimic/hosp/labevents.csv.gz | wc -l
 ```
+
 ```{bash}
 time wc -l ./labevents.csv
 ```
@@ -189,7 +183,6 @@ wc -c < ./labevents.csv
 
 **Solution: The compressed labevents file has 2592909134 bytes(2.41 GB) and took around 39.731 seconds to run, while the uncompressed labevents file has 9624879104 bytes(8.86 GB) and took about 16.904 seconds to run. Typically, smaller files will run faster than larger files. However, csv.gz first need to be uncompressed when using `zcat` before the `ls -l` command is run, which takes a while. The .csv file has already been uncompressed, so while it will take up more storage, it will also run faster since it only needs to run the command.**
 
-trade off between storage and speed for big data files
 
 ```{bash}
 rm ./labevents.csv
@@ -270,12 +263,12 @@ Explain the output. Explain the meaning of `"$1"`, `"$2"`, and `"$3"` in this sh
 Try following commands in Bash and interpret the results: `cal`, `cal 2025`, `cal 9 1752` (anything unusual?), `date`, `hostname`, `arch`, `uname -a`, `uptime`, `who am i`, `who`, `w`, `id`, `last | head`, `echo {con,pre}{sent,fer}{s,ed}`, `time sleep 5`, `history | tail`.
 
 ```{bash}
-cal
+#cal
 ```
 **'cal' gives the calendar dates for the current month, which is January 2025.**
 
 ```{bash}
-cal 2025
+#cal 2025
 ```
 
 **'cal 2025' gives the calendar dates of all of 2025.**
@@ -382,7 +375,8 @@ The point of this exercise is (1) to obtain the book for free and (2) to see an 
 
 For grading purpose, include a screenshot of Section 4.1.5 of the book here.
 
-Here it is ![screenshot](Q6_screenshot.png). 
+
+![](Q6_screenshot.png). 
 
 
 
