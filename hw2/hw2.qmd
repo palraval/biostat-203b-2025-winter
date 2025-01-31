@@ -121,26 +121,29 @@ pryr::object_size(read_csv("~/mimic/hosp/admissions.csv.gz",
 
 ## Q2. Ingest big data files
 
-<p align="center">
-  <img src="./bigfile.png" width="50%">
-</p>
-
 Let us focus on a bigger file, `labevents.csv.gz`, which is about 130x bigger than `admissions.csv.gz`.
+
 ```{bash}
 ls -l ~/mimic/hosp/labevents.csv.gz
 ```
+
 Display the first 10 lines of this file.
+
 ```{bash}
 zcat < ~/mimic/hosp/labevents.csv.gz | head -10
 ```
 
 ### Q2.1 Ingest `labevents.csv.gz` by `read_csv`
 
-<p align="center">
-  <img src="./readr_logo.png" width="20%">
-</p>
-
 Try to ingest `labevents.csv.gz` using `read_csv`. What happens? If it takes more than 3 minutes on your computer, then abort the program and report your findings. 
+
+```{r}
+read_csv("~/mimic/hosp/labevents.csv.gz")
+```
+
+
+**Solution: It was running for more than three minutes on my computer, so I aborted the program. It is supposed to crash R Studio because the data file is so large than you cannot just run it without some amount of modification/alteration.**
+
 
 ### Q2.2 Ingest selected columns of `labevents.csv.gz` by `read_csv`
 
