@@ -1,7 +1,7 @@
 ---
 title: "Biostat 203B Homework 2"
 subtitle: Due Feb 7, 2025 @ 11:59PM
-author: "Your Name and UID"
+author: "Palash Raval and 406551574"
 format:
   html:
     theme: cosmo
@@ -55,6 +55,33 @@ ls -l ~/mimic/icu/
 There are quite a few utilities in R for reading plain text data files. Let us test the speed of reading a moderate sized compressed csv file, `admissions.csv.gz`, by three functions: `read.csv` in base R, `read_csv` in tidyverse, and `fread` in the data.table package.
 
 Which function is fastest? Is there difference in the (default) parsed data types? How much memory does each resultant dataframe or tibble use? (Hint: `system.time` measures run times; `pryr::object_size` measures memory usage; all these readers can take gz file as input without explicit decompression.) 
+
+```{r}
+system.time(read.csv("~/mimic/hosp/admissions.csv.gz"))
+```
+
+```{r}
+pryr::object_size(read.csv("~/mimic/hosp/admissions.csv.gz"))
+```
+
+```{r}
+system.time(read_csv("~/mimic/hosp/admissions.csv.gz"))
+```
+```{r}
+pryr::object_size(read_csv("~/mimic/hosp/admissions.csv.gz"))
+```
+```{r}
+system.time(fread("~/mimic/hosp/admissions.csv.gz"))
+```
+
+```{r}
+pryr::object_size(fread("~/mimic/hosp/admissions.csv.gz"))
+```
+
+**Solution: fread() is the function with the fastest speed(~ 0.548 seconds). read_csv() is second with a speed of ~1.103 seconds and read.csv() being the slowest with a speed of ~5.758 seconds. Yes, there is a difference in the default parsed data types: read.csv() provides a dataframe, read_csv() gives a tibble, and fread() returns a data.table. fread() is the most memory efficient with a usage of ~63.47 MB, with read_csv() coming in second with ~70.02 MB, and read.csv() using the most memory with ~200.10 MB.**  
+
+
+
 
 ### Q1.2 User-supplied data types
 
