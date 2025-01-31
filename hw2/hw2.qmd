@@ -81,11 +81,43 @@ pryr::object_size(fread("~/mimic/hosp/admissions.csv.gz"))
 **Solution: fread() is the function with the fastest speed(~ 0.548 seconds). read_csv() is second with a speed of ~1.103 seconds and read.csv() being the slowest with a speed of ~5.758 seconds. Yes, there is a difference in the default parsed data types: read.csv() provides a dataframe, read_csv() gives a tibble, and fread() returns a data.table. fread() is the most memory efficient with a usage of ~63.47 MB, with read_csv() coming in second with ~70.02 MB, and read.csv() using the most memory with ~200.10 MB.**  
 
 
-
-
 ### Q1.2 User-supplied data types
 
 Re-ingest `admissions.csv.gz` by indicating appropriate column data types in `read_csv`. Does the run time change? How much memory does the result tibble use? (Hint: `col_types` argument in `read_csv`.)
+
+```{r}
+system.time(read_csv("~/mimic/hosp/admissions.csv.gz", 
+                         col_types = cols(subject_id = "i",
+                                          hadm_id = "i",admittime = "T",
+                                          dischtime = "T",deathtime = "T",          
+                                          admission_type = "c", 
+                                          admit_provider_id = "c",
+                                          admission_location = "c",
+                                          discharge_location = "c",
+                                          insurance = "c", language = "c",
+                                          marital_status = "c",
+                                          race = "c", edregtime = "T",
+                                          edouttime = "T",
+                                          hospital_expire_flag = "i")))            
+```
+
+```{r}
+pryr::object_size(read_csv("~/mimic/hosp/admissions.csv.gz", 
+                         col_types = cols(subject_id = "i",
+                                          hadm_id = "i",admittime = "T",
+                                          dischtime = "T",deathtime = "T",          
+                                          admission_type = "c", 
+                                          admit_provider_id = "c",
+                                          admission_location = "c",
+                                          discharge_location = "c",
+                                          insurance = "c", language = "c",
+                                          marital_status = "c",
+                                          race = "c", edregtime = "T",
+                                          edouttime = "T",
+                                          hospital_expire_flag = "i"))) 
+```
+
+**Solution: The speed of read_csv() slightly decreased after I indicated the appropriate data types for each of the columns. It went from an original speed of 1.103 seconds, to a speed of 1.073 seconds. The memory usage also seemed to decreased after I indicated the appropriate data types for each column. Originally, the memory usage was 70.02 MB and for this question it was shown to be 63.47 MB.**
 
 ## Q2. Ingest big data files
 
