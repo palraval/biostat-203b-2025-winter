@@ -183,6 +183,7 @@ zcat < ~/mimic/hosp/labevents.csv.gz |
 ```{bash}
 zcat < labevents_filtered.csv.gz | head -10
 ```
+
 ```{bash}
 zcat < labevents_filtered.csv.gz | wc -l 
 ```
@@ -196,15 +197,35 @@ system.time(read_csv("labevents_filtered.csv.gz"))
 
 ### Q2.4 Ingest `labevents.csv` by Apache Arrow
 
-<p align="center">
-  <img src="./arrow_logo.png" width="30%">
-</p>
-
 Our second strategy is to use [Apache Arrow](https://arrow.apache.org/) for larger-than-memory data analytics. Unfortunately Arrow does not work with gz files directly. First decompress `labevents.csv.gz` to `labevents.csv` and put it in the current working directory (do not add it in git!). To save render time, put `#| eval: false` at the beginning of this code chunk. TA will change it to `#| eval: true` when rendering your qmd file.
 
 Then use [`arrow::open_dataset`](https://arrow.apache.org/docs/r/reference/open_dataset.html) to ingest `labevents.csv`, select columns, and filter `itemid` as in Q2.3. How long does the ingest+select+filter process take? Display the number of rows and the first 10 rows of the result tibble, and make sure they match those in Q2.3. (Hint: use `dplyr` verbs for selecting columns and filtering rows.)
 
 Write a few sentences to explain what is Apache Arrow. Imagine you want to explain it to a layman in an elevator. 
+
+```{bash}
+#| eval: false
+gzip -dc < ~/mimic/hosp/labevents.csv.gz > ./labevents.csv
+```
+
+```{r}
+arrow_filtered = arrow::open_dataset("./labevents.csv", format = "csv") %>%
+              select(subject_id, itemid, charttime, valuenum) %>%
+              filter(itemid %in% c("50912","50971", "50983", "50902", 
+                     "50882","51221", "51301", "50931")) %>%
+              collect()
+```
+
+```{r}
+nrow(arrow_filtered)
+```
+
+```{r}
+head(arrow_filtered)
+```
+
+**Solution: There are 32679896 rows in this filtered data, which matches with the number of rows that I found in the previous question. Apache Arrow is a library that can process and move massive data sets. It can even move data sets from different languages, such as Python. It essentially organizes data by columns instead of by rows, in a process that is called "in-memory columnar format". It is the reason why Apache Arrow is faster and more efficient for dealing with large data sets that would otherwise by a hastle to deal with.** 
+
 
 ### Q2.5 Compress `labevents.csv` to Parquet format and ingest/select/filter
 
