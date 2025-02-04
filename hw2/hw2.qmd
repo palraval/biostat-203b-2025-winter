@@ -241,13 +241,53 @@ head(arrow_filtered, 10)
 
 ### Q2.5 Compress `labevents.csv` to Parquet format and ingest/select/filter
 
-<p align="center">
-  <img src="./parquet_logo.png" width="30%">
-</p>
-
 Re-write the csv file `labevents.csv` in the binary Parquet format (Hint: [`arrow::write_dataset`](https://arrow.apache.org/docs/r/reference/write_dataset.html).) How large is the Parquet file(s)? How long does the ingest+select+filter process of the Parquet file(s) take? Display the number of rows and the first 10 rows of the result tibble and make sure they match those in Q2.3. (Hint: use `dplyr` verbs for selecting columns and filtering rows.)
 
 Write a few sentences to explain what is the Parquet format. Imagine you want to explain it to a layman in an elevator.
+
+```{r}
+#| eval: false
+
+arrow_dataset = arrow::open_dataset("./labevents.csv", format = "csv")
+
+arrow::write_dataset(arrow_dataset, "./labevents_parquet",
+                     format = "parquet")
+```
+
+
+```{bash}
+du -sh ./labevents_parquet
+```
+
+```{r}
+system.time(arrow::open_dataset("./labevents_parquet", format = "parquet") %>%
+              select(subject_id, itemid, charttime, valuenum) %>%
+              filter(itemid %in% c(50912,50971, 50983, 50902, 
+                     50882,51221, 51301, 50931)) %>%
+              collect()
+            )
+```
+
+
+```{r}
+parquet_filtered = arrow::open_dataset("./labevents_parquet", format = "parquet") %>%
+              select(subject_id, itemid, charttime, valuenum) %>%
+              filter(itemid %in% c(50912,50971, 50983, 50902, 
+                     50882,51221, 51301, 50931)) %>%
+              collect()
+```
+
+```{r}
+nrow(parquet_filtered)
+```
+
+```{r}
+head(parquet_filtered, 10)
+```
+
+Solution: The parquet data file is 2.5G. It took about 7.049 seconds for the ingest+select+filter process. The number of rows and the first 10 rows match what was found in Q2.3. Parquet format is a data file format that is column-oriented. It is helpful for large data sets because it has a more efficient system for storage, so filtering and retrieving the data will be much faster than if you were to stick with the csv format. This was proven by how 
+fast the ingest+select+filter process occurred compared to the methods done before.
+
 
 ### Q2.6 DuckDB
 
