@@ -285,19 +285,46 @@ nrow(parquet_filtered)
 head(parquet_filtered, 10)
 ```
 
-Solution: The parquet data file is 2.5G. It took about 7.049 seconds for the ingest+select+filter process. The number of rows and the first 10 rows match what was found in Q2.3. Parquet format is a data file format that is column-oriented. It is helpful for large data sets because it has a more efficient system for storage, so filtering and retrieving the data will be much faster than if you were to stick with the csv format. This was proven by how 
-fast the ingest+select+filter process occurred compared to the methods done before.
+**Solution: The parquet data file is 2.5G. It took about 7.049 seconds for the ingest+select+filter process. The number of rows and the first 10 rows match what was found in Q2.3. Parquet format is a data file format that is column-oriented. It is helpful for large data sets because it has a more efficient system for storage, so filtering and retrieving the data will be much faster than if you were to stick with the csv format. This was proven by how fast the ingest+select+filter process occurred compared to the methods done before.**
 
 
 ### Q2.6 DuckDB
 
-<p align="center">
-  <img src="./duckdb_logo.png" width="20%">
-</p>
-
 Ingest the Parquet file, convert it to a DuckDB table by [`arrow::to_duckdb`](https://arrow.apache.org/docs/r/reference/to_duckdb.html), select columns, and filter rows as in Q2.5. How long does the ingest+convert+select+filter process take? Display the number of rows and the first 10 rows of the result tibble and make sure they match those in Q2.3. (Hint: use `dplyr` verbs for selecting columns and filtering rows.)
 
 Write a few sentences to explain what is DuckDB. Imagine you want to explain it to a layman in an elevator.
+
+```{r}
+duck_parquet = open_dataset("./labevents_parquet") %>%
+  to_duckdb() %>%
+  select(subject_id, itemid, charttime, valuenum) %>%
+  filter(itemid %in% c(50912,50971, 50983, 50902, 50882, 51221, 51301, 
+                       50931)) %>%
+  collect()
+```
+```{r}
+system.time(open_dataset("./labevents_parquet") %>%
+  to_duckdb() %>%
+  select(subject_id, itemid, charttime, valuenum) %>%
+  filter(itemid %in% c(50912,50971, 50983, 50902, 50882, 51221, 51301, 
+                       50931)) %>%
+  collect())
+```
+
+```{r}
+nrow(duck_parquet)
+```
+
+```{r}
+head(duck_parquet, 10)
+```
+
+```{r}
+head(duck_parquet %>% arrange(subject_id), 10)
+```
+
+**Solution: It took about 6.716 seconds for the ingest+select+filter process. The number of rows was 32679896, which is the same as the number of rows for Q2.3. When I did head(), I got different values than what I did previously. It was only after I arranged in ascending order did the first 10 rows match the ones from Q2.3. DuckDB is a database that can be utilized in R through the Arrow Apache library. It can also be used in other programming languages as well, which makes it versatile. DuckDB makes querying quick and efficient because it is column-focused(columnar), which means it stores data by columns, meaning that less storage is taken up and the processing will be faster. This makes it a great option when you have to deal with data analysis on large datasets. ** 
+
 
 ## Q3. Ingest and filter `chartevents.csv.gz`
 
