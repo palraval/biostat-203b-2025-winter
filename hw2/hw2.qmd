@@ -3,16 +3,7 @@ title: "Biostat 203B Homework 2"
 subtitle: Due Feb 7, 2025 @ 11:59PM
 author: "Palash Raval and 406551574"
 format:
-  html:
-    theme: cosmo
-    embed-resources: true
-    number-sections: false
-    toc: true
-    toc-depth: 4
-    toc-location: left
-    code-fold: false
-    link-external-icon: true
-    link-external-newwindow: true
+  pdf: default
 ---
 
 Display machine information for reproducibility:
@@ -89,18 +80,18 @@ Re-ingest `admissions.csv.gz` by indicating appropriate column data types in `re
 
 ```{r}
 system.time(read_csv("~/mimic/hosp/admissions.csv.gz", 
-                         col_types = cols(subject_id = "i",
-                                          hadm_id = "i",admittime = "T",
-                                          dischtime = "T",deathtime = "T",          
-                                          admission_type = "c", 
-                                          admit_provider_id = "c",
-                                          admission_location = "c",
-                                          discharge_location = "c",
-                                          insurance = "c", language = "c",
-                                          marital_status = "c",
-                                          race = "c", edregtime = "T",
-                                          edouttime = "T",
-                                          hospital_expire_flag = "i")))            
+                     col_types = cols(subject_id = "i",
+                                      hadm_id = "i",admittime = "T",
+                                      dischtime = "T",deathtime = "T",          
+                                      admission_type = "c", 
+                                      admit_provider_id = "c",
+                                      admission_location = "c",
+                                      discharge_location = "c",
+                                      insurance = "c", language = "c",
+                                      marital_status = "c",
+                                      race = "c", edregtime = "T",
+                                      edouttime = "T",
+                                      hospital_expire_flag = "i")))            
 ```
 
 ```{r}
@@ -173,27 +164,32 @@ Display the first 10 lines of the new file `labevents_filtered.csv.gz`. How many
 
 ```{bash}
 #| eval: false
-
 zcat < ~/mimic/hosp/labevents.csv.gz | 
-      awk -F ',' '$5 == "50912" || $5 == "50971" || $5 == "50983" || $5 == "50902" ||
-                  $5 == "50882" || $5 == "51221" || $5 == "51301" || $5 == "50931"                                          {print $2, $5, $7, $10}' |
+      awk -F ',' '$5 == "50912" || $5 == "50971" || $5 == "50983" || 
+      $5 == "50902" || $5 == "50882" || $5 == "51221" || $5 == "51301" || 
+      $5 == "50931"{print $2, $5, $7, $10}' |
       gzip > labevents_filtered.csv.gz
 ```
 
 
 ```{bash}
+
 zcat < labevents_filtered.csv.gz | head -10
 ```
 
 ```{bash}
+
 zcat < labevents_filtered.csv.gz | wc -l 
 ```
 
+
 ```{r}
+#| eval: false
 system.time(read_csv("labevents_filtered.csv.gz"))
 ```
 
-**Solution: There are 32679896 lines in the filtered data file `labevents_filtered.csv.gz`. It took about 49.762 seconds for the read_csv() function to ingest this filtered data file.**
+
+**Solution: There are 32679896 lines in the filtered data file `labevents_filtered.csv.gz`. It took about 50 seconds for the read_csv() function to ingest this filtered data file.**
 
 
 
@@ -206,29 +202,28 @@ Then use [`arrow::open_dataset`](https://arrow.apache.org/docs/r/reference/open_
 Write a few sentences to explain what is Apache Arrow. Imagine you want to explain it to a layman in an elevator. 
 
 ```{bash}
-#| eval: false
+
 gzip -dc < ~/mimic/hosp/labevents.csv.gz > ./labevents.csv
 ```
 
 ```{r}
-#| eval: false
 arrow_filtered = arrow::open_dataset("./labevents.csv", format = "csv") %>%
-              select(subject_id, itemid, charttime, valuenum) %>%
-              filter(itemid %in% c("50912","50971", "50983", "50902", 
-                     "50882","51221", "51301", "50931")) %>%
-              collect()
+  select(subject_id, itemid, charttime, valuenum) %>%
+  filter(itemid %in% c("50912","50971", "50983", "50902", 
+                       "50882","51221", "51301", "50931")) %>%
+  collect()
 ```
+
 
 ```{r}
 #| eval: false
 system.time(arrow::open_dataset("./labevents.csv", format = "csv") %>%
               select(subject_id, itemid, charttime, valuenum) %>%
               filter(itemid %in% c("50912","50971", "50983", "50902", 
-                     "50882","51221", "51301", "50931")) %>%
+                                   "50882","51221", "51301", "50931")) %>%
               collect()
             )
 ```
-
 
 ```{r}
 nrow(arrow_filtered)
@@ -238,7 +233,7 @@ nrow(arrow_filtered)
 head(arrow_filtered, 10)
 ```
 
-**Solution: There are 32679896 rows in this filtered data, which matches with the number of rows that I found in the previous question. Apache Arrow is a library that can process and move massive data sets. It can even move data sets from different languages, such as Python. It essentially organizes data by columns instead of by rows, in a process that is called "in-memory columnar format". "In-memory" means it runs locally and not on some server. It is the reason why Apache Arrow is faster and more efficient for dealing with large data sets that would otherwise by a hastle to deal with.** 
+**Solution: It took about 45 seconds for it to run. There are 32679896 rows in this filtered data, which matches with the number of rows that I found in the previous question. Apache Arrow is a library that can process and move massive data sets. It can even move data sets from different languages, such as Python. It essentially organizes data by columns instead of by rows, in a process that is called "in-memory columnar format". "In-memory" means it runs locally and not on some server. It is the reason why Apache Arrow is faster and more efficient for dealing with large data sets that would otherwise by a hastle to deal with.** 
 
 
 ### Q2.5 Compress `labevents.csv` to Parquet format and ingest/select/filter
@@ -248,12 +243,10 @@ Re-write the csv file `labevents.csv` in the binary Parquet format (Hint: [`arro
 Write a few sentences to explain what is the Parquet format. Imagine you want to explain it to a layman in an elevator.
 
 ```{r}
-#| eval: false
 
 arrow_dataset = arrow::open_dataset("./labevents.csv", format = "csv")
 
-arrow::write_dataset(arrow_dataset, "./labevents_parquet",
-                     format = "parquet")
+arrow::write_dataset(arrow_dataset, "./labevents_parquet", format = "parquet")
 ```
 
 
@@ -262,21 +255,23 @@ ls -lh ./labevents_parquet
 ```
 
 ```{r}
+#| eval: false
 system.time(arrow::open_dataset("./labevents_parquet", format = "parquet") %>%
               select(subject_id, itemid, charttime, valuenum) %>%
               filter(itemid %in% c(50912,50971, 50983, 50902, 
-                     50882,51221, 51301, 50931)) %>%
+                                   50882,51221, 51301, 50931)) %>%
               collect()
             )
 ```
 
 
 ```{r}
+
 parquet_filtered = arrow::open_dataset("./labevents_parquet", format = "parquet") %>%
-              select(subject_id, itemid, charttime, valuenum) %>%
-              filter(itemid %in% c(50912,50971, 50983, 50902, 
-                     50882,51221, 51301, 50931)) %>%
-              collect()
+  select(subject_id, itemid, charttime, valuenum) %>%
+  filter(itemid %in% c(50912,50971, 50983, 50902, 
+                       50882,51221, 51301, 50931)) %>%
+  collect()
 ```
 
 ```{r}
@@ -287,7 +282,7 @@ nrow(parquet_filtered)
 head(parquet_filtered, 10)
 ```
 
-**Solution: The parquet data file is 2.5G. It took about 7.049 seconds for the ingest+select+filter process. The number of rows and the first 10 rows match what was found in Q2.3. Parquet format is a data file format that is column-oriented. It is helpful for large data sets because it has a more efficient system for storage, so filtering and retrieving the data will be much faster than if you were to stick with the csv format. This was proven by how fast the ingest+select+filter process occurred compared to the methods done before.**
+**Solution: The parquet data file is 2.5G. It took about 7 seconds for the ingest+select+filter process. The number of rows and the first 10 rows match what was found in Q2.3. Parquet format is a data file format that is column-oriented. It is helpful for large data sets because it has a more efficient system for storage, so filtering and retrieving the data will be much faster than if you were to stick with the csv format. This was proven by how fast the ingest+select+filter process occurred compared to the methods done before.**
 
 
 ### Q2.6 DuckDB
@@ -297,6 +292,7 @@ Ingest the Parquet file, convert it to a DuckDB table by [`arrow::to_duckdb`](ht
 Write a few sentences to explain what is DuckDB. Imagine you want to explain it to a layman in an elevator.
 
 ```{r}
+
 duck_parquet = open_dataset("./labevents_parquet") %>%
   to_duckdb() %>%
   select(subject_id, itemid, charttime, valuenum) %>%
@@ -304,7 +300,9 @@ duck_parquet = open_dataset("./labevents_parquet") %>%
                        50931)) %>%
   collect()
 ```
+
 ```{r}
+#| eval: false
 system.time(open_dataset("./labevents_parquet") %>%
   to_duckdb() %>%
   select(subject_id, itemid, charttime, valuenum) %>%
@@ -333,13 +331,11 @@ head(duck_parquet %>% arrange(subject_id), 10)
 [`chartevents.csv.gz`](https://mimic.mit.edu/docs/iv/modules/icu/chartevents/) contains all the charted data available for a patient. During their ICU stay, the primary repository of a patient’s information is their electronic chart. The `itemid` variable indicates a single measurement type in the database. The `value` variable is the value measured for `itemid`. The first 10 lines of `chartevents.csv.gz` are
 
 ```{bash}
-#| eval: false
 zcat < ~/mimic/icu/chartevents.csv.gz | head -10
 ```
 How many rows? 433 million.
 
 ```{bash}
-#| eval: false
 zcat < ~/mimic/icu/chartevents.csv.gz | tail -n +2 | wc -l
 ```
 
@@ -361,6 +357,7 @@ zcat < ~/mimic/icu/chartevents.csv.gz |
   gzip > chartevents_filtered.csv.gz
 ```
 
+
 ```{bash}
 zcat < chartevents_filtered.csv.gz | head -10
 ```
@@ -370,7 +367,4 @@ zcat < chartevents_filtered.csv.gz | wc -l
 ```
 
 **Solution: I used Bash to get a subset. I used `zcat` to deal with the compressed file and filtered based on the values in itemid, so I would be left with only the rows that had the itemid values I was interested in. After this, I used `gzip` to compress the subset file. After filtering the original 'chartevents.csv.gz' file for the specific itemid values, there are 30195426 rows in the subset of 'chartevents.csv.gz'.**
-
-
-
 
