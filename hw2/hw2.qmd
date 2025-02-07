@@ -136,7 +136,7 @@ read_csv("~/mimic/hosp/labevents.csv.gz")
 ```
 
 
-**Solution: It was running for more than three minutes on my computer, so I aborted the program. It is supposed to crash R Studio because the data file is so large than you cannot just run it without some amount of modification/alteration.**
+**Solution: It was running for more than three minutes on my computer, so I aborted the program. It is supposed to crash R Studio because the data file is so large than you cannot just run it without some amount of modification/alteration. **
 
 
 ### Q2.2 Ingest selected columns of `labevents.csv.gz` by `read_csv`
@@ -151,7 +151,7 @@ read_csv("~/mimic/hosp/labevents.csv.gz", col_select = c(`subject_id`,
                                                          `valuenum`))
 ```
 
-**Solution: No, it did not resolve the ingestion issue. Even though I ingested only those four columns, R Studio still crashed while I ran the modified command.** 
+**Solution: No, it did not resolve the ingestion issue. Even though I ingested only those four columns, R Studio still crashed while I ran the modified command. The data file is stil very large even after selecting only a few of the columns.** 
 
 
 ### Q2.3 Ingest a subset of `labevents.csv.gz`
