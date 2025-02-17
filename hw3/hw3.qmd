@@ -72,10 +72,55 @@ Import `icustays.csv.gz` as a tibble `icustays_tble`.
 icustays_tble = read_csv("~/mimic/icu/icustays.csv.gz")
 ```
 
-
 ### Q2.2 Summary and visualization
 
 How many unique `subject_id`? Can a `subject_id` have multiple ICU stays? Summarize the number of ICU stays per `subject_id` by graphs. 
+
+```{r}
+length(unique(icustays_tble$subject_id))
+```
+
+```{r}
+icustays_tble %>% count(subject_id, sort = TRUE)
+```
+
+```{r}
+icu_counts = icustays_tble %>% 
+  count(subject_id, sort = TRUE) %>% 
+  head(15)
+```
+
+```{r}
+ggplot(data = icu_counts, aes(x = as.factor(subject_id), 
+                              y = n,
+                              fill = as.factor(subject_id))) +
+  geom_bar(stat = "identity", color = "lightblue") +
+  labs(title = "Top 15 Subjects with Most ICU Stays",
+       x = "Subject ID",
+       y = "ICU Stays Count",
+       fill = "Subject ID Legend") + 
+  theme(axis.text.x = element_text(angle = 90))
+```
+
+```{r}
+icu_counts = icustays_tble %>% 
+  count(subject_id, sort = TRUE)
+```
+
+
+```{r}
+ggplot(icu_counts, aes(x = n)) + 
+  geom_histogram() +
+  labs(title = "Distribution of Counts of ICU Stays",
+       x = "Counts",
+       y = "Number of Subject ID in Log Scale") + 
+  scale_y_continuous(trans = "log10")
+```
+
+
+**Solution: There are 65366 unique values for `subject_id`. Yes, a `subject_id` can have multiple ICU stays. Each row represents one ICU stay, so any count of `subject_id` that is greater than 1 indicates more than one ICU stay for a particular subject.** 
+
+
 
 ## Q3. `admissions` data
 
