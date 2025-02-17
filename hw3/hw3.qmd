@@ -152,6 +152,71 @@ According to the [MIMIC-IV documentation](https://mimic.mit.edu/docs/iv/about/co
 
 > All dates in the database have been shifted to protect patient confidentiality. Dates will be internally consistent for the same patient, but randomly distributed in the future. Dates of birth which occur in the present time are not true dates of birth. Furthermore, dates of birth which occur before the year 1900 occur if the patient is older than 89. In these cases, the patient’s age at their first admission has been fixed to 300.
 
+
+**Solution: Graph for "Number of Admissions per Patient"**
+
+```{r}
+admission_per_patient = admissions_tble %>% 
+  group_by(subject_id) %>%
+  summarize(admission_counts = n_distinct(hadm_id)) %>%
+  arrange(desc(admission_counts)) %>%
+  head(10)
+```
+
+```{r}
+ggplot(data = admission_per_patient, aes(as.factor(subject_id), 
+                              y = admission_counts,
+                              fill = as.factor(subject_id))) +
+  geom_bar(stat = "identity", color = "green") +
+  labs(title = "Top 10 Subjects with Most Admissions",
+       x = "Subject ID",
+       y = "Admissions Count",
+       fill = "Subject ID Legend") + 
+  theme(axis.text.x = element_text(angle = 90))
+```
+
+**Solution: Graph for "admission hour"**
+
+```{r}
+ggplot(admissions_tble, aes(x = hour(admittime))) + 
+  geom_histogram(bins = 24, fill = "orangered") + 
+  labs(title = "Admission Time Hour Distribution",
+       x = "Hour of Admission",
+       y = "Count") + 
+  theme(legend.position = "NONE")
+```
+This graph shows that there seems to be the peak admission hour is at midnight(start of a new day). This doesn't make much sense because I would expect the highest admission to happen during the morning or in the middle of the day, because that is when the most people are awake and would seek treatment. 
+
+
+**Solution: Graph for "admission minute"**
+
+```{r}
+ggplot(admissions_tble, aes(x = minute(admittime))) + 
+  geom_histogram(bins = 15, fill = "royalblue") + 
+  labs(title = "Admission Time Hour Distribution",
+       x = "Minute of Admission",
+       y = "Count") + 
+  theme(legend.position = "NONE")
+```
+This graph shows that the highest minute of admission is at minute 0. I believe this constitutes as unusual because I would expect the distribution of minute to be relatively uniform. 
+
+**Solution: Graph for "length of hospital stay (from admission to discharge)"** 
+
+```{r}
+time_difference_sec = admissions_tble$dischtime - admissions_tble$admittime
+
+admissions_tble$time_difference_hour = time_difference_sec/3600
+```
+
+```{r}
+ggplot(admissions_tble, aes(x = as.numeric(time_difference_hour))) + 
+  geom_histogram(bins = 15, fill = "pink") + 
+  labs(title = "Distribution for Length of Hospital Stay",
+       x = "Time Difference in Hours",
+       y = "Count")
+```
+This graph shows that the majority of values after subtracting the discharge time from the admission time around 0 hours. This does not make sense as you would expect a trip to the hospital to take quite a while, so I would say this is unusual. The dates in the MIMIC IV are known to be shifted to protect patients, which is probably why the times are so unusual.  
+
 ## Q4. `patients` data
 
 Patient information is available in `patients.csv.gz`. See <https://mimic.mit.edu/docs/iv/modules/hosp/patients/> for details of each field in this file. The first 10 lines are
