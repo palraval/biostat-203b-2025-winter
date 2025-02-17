@@ -121,10 +121,10 @@ ggplot(icu_counts, aes(x = n)) +
 **Solution: There are 65366 unique values for `subject_id`. Yes, a `subject_id` can have multiple ICU stays. Each row represents one ICU stay, so any count of `subject_id` that is greater than 1 indicates more than one ICU stay for a particular subject.** 
 
 
-
 ## Q3. `admissions` data
 
 Information of the patients admitted into hospital is available in `admissions.csv.gz`. See <https://mimic.mit.edu/docs/iv/modules/hosp/admissions/> for details of each field in this file. The first 10 lines are
+
 ```{bash}
 zcat < ~/mimic/hosp/admissions.csv.gz | head
 ```
@@ -132,6 +132,12 @@ zcat < ~/mimic/hosp/admissions.csv.gz | head
 ### Q3.1 Ingestion
 
 Import `admissions.csv.gz` as a tibble `admissions_tble`.
+
+```{r}
+admissions_tble = read_csv("~/mimic/hosp/admissions.csv.gz")
+
+head(admissions_tble)
+```
 
 ### Q3.2 Summary and visualization
 
