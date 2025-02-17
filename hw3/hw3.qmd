@@ -240,6 +240,31 @@ head(patients_tble)
 
 Summarize variables `gender` and `anchor_age` by graphics, and explain any patterns you see.
 
+```{r}
+patients_tble %>% count(gender)
+```
+```{r}
+ggplot(data = patients_tble, aes(x = as.factor(gender),
+                                 fill = as.factor(gender))) + 
+  geom_bar(width = 0.4) + 
+  scale_fill_manual(values = c("pink", "lightblue")) + 
+  labs(title = "Patient Gender Count", 
+       x = "Gender",
+       y = "Count",
+       fill = "Gender")
+```
+This graph indicates that females make up the majority of the patients, although the gender distribution doesn't seem to be overwhemingly one-sided.  
+
+```{r}
+ggplot(patients_tble, aes(x = anchor_age)) + 
+  geom_histogram(bins = 20, fill = "gold") + 
+  labs(title = "Distribution of Anchor Age",
+       x = "Anchor Age", 
+       y = "Count")
+```
+The anchor age with the highest counts seem to be under the age of 25. The distribution also appears to steadily decrease as the anchor age increases. 
+
+
 ## Q5. Lab results
 
 `labevents.csv.gz` (<https://mimic.mit.edu/docs/iv/modules/hosp/labevents/>) contains all laboratory measurements for patients. The first 10 lines are
