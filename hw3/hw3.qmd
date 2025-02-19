@@ -268,11 +268,14 @@ The anchor age with the highest counts seem to be under the age of 25. The distr
 ## Q5. Lab results
 
 `labevents.csv.gz` (<https://mimic.mit.edu/docs/iv/modules/hosp/labevents/>) contains all laboratory measurements for patients. The first 10 lines are
+
 ```{bash}
+#| eval: false
 zcat < ~/mimic/hosp/labevents.csv.gz | head
 ```
 
 `d_labitems.csv.gz` (<https://mimic.mit.edu/docs/iv/modules/hosp/d_labitems/>) is the dictionary of lab measurements. 
+
 ```{bash}
 zcat < ~/mimic/hosp/d_labitems.csv.gz | head
 ```
@@ -281,13 +284,67 @@ We are interested in the lab measurements of creatinine (50912), potassium (5097
 
 ![](labevents_tble.png)
 
-
 Hint: Use the Parquet format you generated in Homework 2. For reproducibility, make `labevents_pq` folder available at the current working directory `hw3`, for example, by a symbolic link.
+
+```{r}
+library(duckdb)
+
+important_measurements = c(50912, 50971, 50983, 50902, 50882, 51221,
+                           51301, 50931)
+                           
+labevents_subset = open_dataset("~/Desktop/labevents_pq") %>%
+  to_duckdb() %>%
+  filter(itemid %in% important_measurements) %>%
+  filter(subject_id %in% icustays_tble$subject_id) %>%
+  arrange(subject_id) %>%
+  collect()
+```
+```{r, warning=FALSE}
+merged = left_join(labevents_subset, icustays_tble,
+                   by = "subject_id")
+```
+
+
+```{r}
+filtered = merged %>%
+  filter(storetime < intime)
+```
+
+```{r}
+#| eval: false
+adjusted_labevents = filtered %>% 
+  group_by(subject_id, stay_id, itemid) %>%
+  slice_max(storetime, with_ties = FALSE) %>%
+  select(subject_id, stay_id, itemid, valuenum)
+```
+
+
+```{r}
+labevents_tble = adjusted_labevents %>% 
+  pivot_wider(names_from = itemid, values_from = valuenum)
+```
+
+```{r}
+colnames(labevents_tble) = c("subject_id",
+                               "stay_id",
+                               "bicarbonate", 
+                               "chloride",
+                               "creatinine",
+                               "glucose",
+                               "potassium",
+                               "sodium",
+                               "hematocrit",
+                               "white_blood_cell_count")
+
+head(labevents_tble, 10)
+```
+
 
 ## Q6. Vitals from charted events
 
 `chartevents.csv.gz` (<https://mimic.mit.edu/docs/iv/modules/icu/chartevents/>) contains all the charted data available for a patient. During their ICU stay, the primary repository of a patient’s information is their electronic chart. The `itemid` variable indicates a single measurement type in the database. The `value` variable is the value measured for `itemid`. The first 10 lines of `chartevents.csv.gz` are
 ```{bash}
+#| eval: false
 zcat < ~/mimic/icu/chartevents.csv.gz | head
 ```
 
@@ -357,6 +414,13 @@ Let us create a tibble `mimic_icu_cohort` for all ICU stays, where rows are all 
 The final `mimic_icu_cohort` should have one row per ICU stay and columns for each variable.
 
 ![](mimic_icu_cohort.png)
+
+```{r}
+
+```
+
+
+
 
 ## Q8. Exploratory data analysis (EDA)
 
