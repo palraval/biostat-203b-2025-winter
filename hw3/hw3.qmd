@@ -298,9 +298,51 @@ zcat < ~/mimic/icu/d_items.csv.gz | head
 
 We are interested in the vitals for ICU patients: heart rate (220045), systolic non-invasive blood pressure (220179), diastolic non-invasive blood pressure (220180), body temperature in Fahrenheit (223761), and respiratory rate (220210). Retrieve a subset of `chartevents.csv.gz` only containing these items for the patients in `icustays_tble`. Further restrict to the first vital measurement (by `storetime`) within the ICU stay. The final `chartevents_tble` should have one row per ICU stay and columns for each vital measurement. 
 
-![](chartevents_tble.png)
 
 Hint: Use the Parquet format you generated in Homework 2. For reproducibility, make `chartevents_pq` folder available at the current working directory, for example, by a symbolic link.
+
+
+```{r}
+important_vitals = c(220045, 220179, 220180, 223761, 220210)
+
+chartevents_subset = open_dataset("~/Desktop/chartevents_pq") %>%
+  to_duckdb() %>%
+  filter(itemid %in% important_vitals) %>%
+  filter(subject_id %in% icustays_tble$subject_id) %>%
+  arrange(subject_id) %>%
+  collect()
+```
+
+```{r}
+adjusted_chartevents = chartevents_subset %>% 
+  group_by(subject_id, stay_id, itemid) %>%
+  slice_min(storetime) %>%
+  select(subject_id, stay_id, itemid, valuenum)
+```
+
+```{r}
+final_chartevents = adjusted_chartevents %>% 
+  group_by(subject_id, stay_id, itemid) %>% 
+  summarize(valuenum = round(mean(valuenum), 
+           digits = 1), .groups = "drop")
+```
+
+```{r}
+chartevents_tble = final_chartevents %>% 
+  pivot_wider(names_from = itemid, values_from = valuenum)
+```
+
+```{r}
+colnames(chartevents_tble) = c("subject_id",
+                               "stay_id",
+                               "heart_rate", 
+                               "systolic_non-invasive_blood_pressure",
+                               "diastolic_non-invasive_blood_pressure",
+                               "respiratory rate",
+                               "body_temperature_fahrenheit")
+
+head(chartevents_tble)
+```
 
 ## Q7. Putting things together
 
