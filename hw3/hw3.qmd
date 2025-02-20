@@ -468,3 +468,222 @@ Summarize the following information about the ICU stay cohort `mimic_icu_cohort`
 
 - Length of ICU stay `los` vs first ICU unit
 
+
+**Solution: Plots for Length of ICU stay `los` vs demographic variables (race, insurance, marital_status, gender, age at intime)**
+
+```{r, warning=FALSE}
+ggplot(data = mimic_icu_cohort, 
+       aes(x = race, y = los)) + 
+  geom_violin() +
+  theme(axis.text.x = element_text(angle = 90, size = 6)) +
+  labs(title = "Violin Plot for Race vs Length of Stay",
+       x = "Race",
+       y = "Length of Stay")
+  
+```
+
+```{r, warning = FALSE}
+ggplot(data = mimic_icu_cohort, 
+       aes(x = insurance, y = los)) + 
+  geom_violin() + 
+  labs(title = "Violin Plot for Insurance vs Length of Stay",
+       x = "Insurance",
+       y = "Length of Stay")
+  
+```
+
+```{r, warning = FALSE}
+ggplot(data = mimic_icu_cohort, 
+       aes(x = marital_status, y = los)) + 
+  geom_violin() + 
+  labs(title = "Violin Plot for Marital Status vs Length of Stay",
+       x = "Marital Status",
+       y = "Length of Stay")
+  
+```
+
+```{r, warning=FALSE}
+ggplot(data = mimic_icu_cohort, 
+       aes(x = gender, y = los)) + 
+  geom_violin() +
+  labs(title = "Violin Plot for Gender vs Length of Stay",
+       x = "Gender",
+       y = "Length of Stay")
+  
+```
+
+```{r, warning=FALSE}
+ggplot(data = mimic_icu_cohort,
+       aes(x = age_intime, y = los)) +
+  geom_point() + 
+  labs(title = "Scatterplot for In-time Age vs Length of Stay",
+       x = "In-time Age",
+       y = "Length of Stay")
+```
+
+**Solution: Plots for Length of ICU stay `los` vs the last available lab measurements before ICU stay**
+
+```{r, warning=FALSE}
+ggplot(data = mimic_icu_cohort, 
+       aes(x = bicarbonate,
+           y = los)) + 
+  geom_point() + 
+  labs(title = "Scatterplot for Bicarbonate vs Length of Stay",
+       x = "Bicarbonate", 
+       y = "Length of Stay")
+```
+```{r, warning=FALSE}
+ggplot(data = mimic_icu_cohort, 
+       aes(x = chloride,
+           y = los)) + 
+  geom_point() + 
+  labs(title = "Scatterplot for Chloride vs Length of Stay",
+       x = "Chloride", 
+       y = "Length of Stay")
+```
+
+```{r, warning=FALSE}
+ggplot(data = mimic_icu_cohort, 
+       aes(x = creatinine,
+           y = los)) + 
+  geom_point() + 
+  labs(title = "Scatterplot for Creatinine vs Length of Stay",
+       x = "Creatinine", 
+       y = "Length of Stay")
+```
+
+```{r, warning=FALSE}
+ggplot(data = mimic_icu_cohort, 
+       aes(x = glucose,
+           y = los)) + 
+  geom_point() + 
+  labs(title = "Scatterplot for Glucose vs Length of Stay",
+       x = "Glucose", 
+       y = "Length of Stay")
+```
+```{r, warning=FALSE}
+ggplot(data = mimic_icu_cohort, 
+       aes(x = potassium,
+           y = los)) + 
+  geom_point() + 
+  labs(title = "Scatterplot for Potassium vs Length of Stay",
+       x = "Potassium", 
+       y = "Length of Stay")
+```
+```{r, warning=FALSE}
+ggplot(data = mimic_icu_cohort, 
+       aes(x = sodium,
+           y = los)) + 
+  geom_point() + 
+  labs(title = "Scatterplot for Sodium vs Length of Stay",
+       x = "Sodium", 
+       y = "Length of Stay")
+```
+```{r, warning=FALSE}
+ggplot(data = mimic_icu_cohort, 
+       aes(x = hematocrit,
+           y = los)) + 
+  geom_point() + 
+  labs(title = "Scatterplot for Hematocrit vs Length of Stay",
+       x = "Hematocrit", 
+       y = "Length of Stay")
+```
+```{r, warning=FALSE}
+ggplot(data = mimic_icu_cohort, 
+       aes(x = white_blood_cell_count,
+           y = los)) + 
+  geom_point() + 
+  labs(title = "Scatterplot for White Blood Cell Count vs Length of Stay",
+       x = "White Blood Cell Count", 
+       y = "Length of Stay")
+```
+
+**Solution: Plots for Length of ICU stay `los` vs the first vital measurements within the ICU stay**
+
+```{r, warning=FALSE}
+ggplot(data = mimic_icu_cohort, 
+       aes(x = heart_rate,
+           y = los)) + 
+  geom_point() + 
+  labs(title = "Scatterplot for Heart Rate vs Length of Stay",
+       x = "Heart Rate", 
+       y = "Length of Stay")
+```
+
+```{r, warning=FALSE}
+ggplot(data = mimic_icu_cohort, 
+       aes(x = `systolic_non-invasive_blood_pressure`,
+           y = los)) + 
+  geom_point() + 
+  coord_cartesian(xlim = c(0, 260)) + 
+  labs(title = "Scatterplot for Systolic Non-Invasive
+       Blood Pressure vs Length of Stay",
+       x = "Systolic Non-Invasive Blood Pressure", 
+       y = "Length of Stay")
+```
+```{r}
+summary(mimic_icu_cohort$`systolic_non-invasive_blood_pressure`)
+```
+
+I chose to limit the scale of x for the above graph because the outlier value of 116114 was making it hard to see the overall distribution of blood pressure. It should be noted that the outlier value is still there, even though it does not appear on this graph. The outlier value does not make any logical sense because it is not possible for a person's blood pressure to give a value that high. 
+
+```{r, warning=FALSE}
+ggplot(data = mimic_icu_cohort, 
+       aes(x = `diastolic_non-invasive_blood_pressure`,
+           y = los)) + 
+  geom_point() + 
+  coord_cartesian(xlim = c(0, 260)) + 
+  labs(title = "Scatterplot for Diastolic Non-Invasive
+       Blood Pressure vs Length of Stay",
+       x = "Diastolic Non-Invasive Blood Pressure", 
+       y = "Length of Stay")
+```
+```{r}
+summary(mimic_icu_cohort$`diastolic_non-invasive_blood_pressure`)
+```
+
+This graph also has some outliers in blood pressure values which throw off the overall graph. I chose to limit the x-axis for this graph too in order to see the distribution better. It should be noted that the outlier values are still present even though they cannot be seen in the graph. The extreme value for blood pressure also does not make logical sense; It is not possible for a human's blood pressure to be that high.
+
+```{r, warning=FALSE}
+ggplot(data = mimic_icu_cohort, 
+       aes(x = `respiratory rate`,
+           y = los)) + 
+  geom_point() + 
+  labs(title = "Scatterplot for Respiratory Rate vs Length of Stay",
+       x = "Respiratory Rate", 
+       y = "Length of Stay")
+```
+
+```{r, warning=FALSE}
+ggplot(data = mimic_icu_cohort, 
+       aes(x = body_temperature_fahrenheit,
+           y = los)) + 
+  geom_point() + 
+  labs(title = "Scatterplot for Body Temperature vs Length of Stay",
+       x = "Body Temperature", 
+       y = "Length of Stay")
+```
+The extreme values also throw off this graph a little, but you can still see the distribution of Body Temperature, so I have elected to show all the data points here. The extreme values of Body Temperature do not make any sense, which should be noted. 
+
+
+**Solution: Graph for Length of ICU stay `los` vs first ICU unit**
+
+```{r, warning=FALSE}
+ggplot(data = mimic_icu_cohort,
+       aes(x = first_careunit,
+           y = los)) + 
+  geom_boxplot() + 
+  coord_flip() + 
+  theme(axis.text.x = element_text(angle = 90)) + 
+  labs(title = "First ICU Unit vs Length of Stay",
+       x = "First ICU Unit",
+       y = "Length of Stay")
+  
+```
+
+
+
+
+
+
+
