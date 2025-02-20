@@ -299,20 +299,21 @@ labevents_subset = open_dataset("~/Desktop/labevents_pq") %>%
   arrange(subject_id) %>%
   collect()
 ```
+
+
 ```{r, warning=FALSE}
-merged = left_join(labevents_subset, icustays_tble,
+labevents_subset = left_join(labevents_subset, icustays_tble,
                    by = "subject_id")
 ```
 
 
 ```{r}
-filtered = merged %>%
+labevents_subset = labevents_subset %>%
   filter(storetime < intime)
 ```
 
 ```{r}
-#| eval: false
-adjusted_labevents = filtered %>% 
+labevents_subset = labevents_subset %>% 
   group_by(subject_id, stay_id, itemid) %>%
   slice_max(storetime, with_ties = FALSE) %>%
   select(subject_id, stay_id, itemid, valuenum)
@@ -320,7 +321,7 @@ adjusted_labevents = filtered %>%
 
 
 ```{r}
-labevents_tble = adjusted_labevents %>% 
+labevents_tble = labevents_subset %>% 
   pivot_wider(names_from = itemid, values_from = valuenum)
 ```
 
@@ -368,24 +369,25 @@ chartevents_subset = open_dataset("~/Desktop/chartevents_pq") %>%
   filter(subject_id %in% icustays_tble$subject_id) %>%
   arrange(subject_id) %>%
   collect()
+
 ```
 
 ```{r}
-adjusted_chartevents = chartevents_subset %>% 
+chartevents_subset = chartevents_subset %>% 
   group_by(subject_id, stay_id, itemid) %>%
   slice_min(storetime) %>%
   select(subject_id, stay_id, itemid, valuenum)
 ```
 
 ```{r}
-final_chartevents = adjusted_chartevents %>% 
+chartevents_subset = chartevents_subset %>% 
   group_by(subject_id, stay_id, itemid) %>% 
   summarize(valuenum = round(mean(valuenum), 
            digits = 1), .groups = "drop")
 ```
 
 ```{r}
-chartevents_tble = final_chartevents %>% 
+chartevents_tble = chartevents_subset %>% 
   pivot_wider(names_from = itemid, values_from = valuenum)
 ```
 
@@ -416,10 +418,42 @@ The final `mimic_icu_cohort` should have one row per ICU stay and columns for ea
 ![](mimic_icu_cohort.png)
 
 ```{r}
+mimic_icu_cohort = left_join(icustays_tble, admissions_tble, 
+                         by = c("subject_id", "hadm_id"))
 
+head(mimic_icu_cohort)
 ```
 
+```{r}
+mimic_icu_cohort = left_join(mimic_icu_cohort, patients_tble, 
+                         by = "subject_id")
 
+head(mimic_icu_cohort)
+```
+
+```{r}
+mimic_icu_cohort = left_join(mimic_icu_cohort, labevents_tble, 
+                         by = c("subject_id", "stay_id"))
+
+head(mimic_icu_cohort)
+```
+
+```{r}
+mimic_icu_cohort = left_join(mimic_icu_cohort, chartevents_tble, 
+                         by = c("subject_id", "stay_id"))
+
+head(mimic_icu_cohort)
+```
+
+```{r}
+mimic_icu_cohort = mimic_icu_cohort %>%
+  mutate(age_intime = anchor_age + year(intime) - anchor_year)
+```
+
+```{r}
+mimic_icu_cohort = mimic_icu_cohort %>%
+  filter(age_intime >= 18)
+```
 
 
 ## Q8. Exploratory data analysis (EDA)
