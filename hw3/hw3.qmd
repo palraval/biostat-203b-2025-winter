@@ -75,7 +75,7 @@ shape_info = read_csv("~/mimic/hosp/procedures_icd.csv.gz",
 ```
 
 ```{r}
-labevents_subset = open_dataset("~/Desktop/labevents_pq") %>%
+labevents_subset = open_dataset("labevents_pq") %>%
   filter(subject_id == 10001217) %>%
   collect()
 ```
@@ -175,7 +175,7 @@ procedures
 ```
 
 ```{r}
-labevents_subset = open_dataset("~/Desktop/labevents_pq") %>%
+labevents_subset = open_dataset("labevents_pq") %>%
   filter(subject_id == 10063848) %>%
   collect()
 ```
@@ -255,7 +255,7 @@ ICU stays are a subset of ADT history. This figure shows the vitals of the patie
 
 
 ```{r}
-chartevents_subset = open_dataset("~/Desktop/chartevents_pq") %>%
+chartevents_subset = open_dataset("chartevents_pq") %>%
   filter(subject_id == 10001217) %>%
   collect()
 ```
@@ -303,7 +303,7 @@ Do a similar visualization for the patient `10063848`.
 
 
 ```{r}
-chartevents_subset = open_dataset("~/Desktop/chartevents_pq") %>%
+chartevents_subset = open_dataset("chartevents_pq") %>%
   filter(subject_id == 10063848) %>%
   collect()
 ```
@@ -569,7 +569,6 @@ zcat < ~/mimic/hosp/d_labitems.csv.gz | head
 
 We are interested in the lab measurements of creatinine (50912), potassium (50971), sodium (50983), chloride (50902), bicarbonate (50882), hematocrit (51221), white blood cell count (51301), and glucose (50931). Retrieve a subset of `labevents.csv.gz` that only containing these items for the patients in `icustays_tble`. Further restrict to the last available measurement (by `storetime`) before the ICU stay. The final `labevents_tble` should have one row per ICU stay and columns for each lab measurement.
 
-![](labevents_tble.png)
 
 Hint: Use the Parquet format you generated in Homework 2. For reproducibility, make `labevents_pq` folder available at the current working directory `hw3`, for example, by a symbolic link.
 
@@ -577,7 +576,7 @@ Hint: Use the Parquet format you generated in Homework 2. For reproducibility, m
 important_measurements = c(50912, 50971, 50983, 50902, 50882, 51221,
                            51301, 50931)
 
-labevents_subset = open_dataset("~/Desktop/labevents_pq") %>%
+labevents_subset = open_dataset("labevents_pq") %>%
   to_duckdb() %>%
   filter(itemid %in% important_measurements) %>%
   filter(subject_id %in% icustays_tble$subject_id) %>%
@@ -652,7 +651,7 @@ Hint: Use the Parquet format you generated in Homework 2. For reproducibility, m
 ```{r}
 important_vitals = c(220045, 220179, 220180, 223761, 220210)
 
-chartevents_subset = open_dataset("~/Desktop/chartevents_pq") %>%
+chartevents_subset = open_dataset("chartevents_pq") %>%
   to_duckdb() %>%
   filter(itemid %in% important_vitals) %>%
   filter(subject_id %in% icustays_tble$subject_id) %>%
@@ -704,7 +703,6 @@ Let us create a tibble `mimic_icu_cohort` for all ICU stays, where rows are all 
 
 The final `mimic_icu_cohort` should have one row per ICU stay and columns for each variable.
 
-![](mimic_icu_cohort.png)
 
 ```{r}
 mimic_icu_cohort = left_join(icustays_tble, admissions_tble, 
