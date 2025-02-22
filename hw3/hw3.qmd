@@ -472,7 +472,8 @@ ggplot(admissions_tble, aes(x = hour(admittime))) +
        y = "Count") + 
   theme(legend.position = "NONE")
 ```
-This graph shows that there seems to be the peak admission hour is at midnight(start of a new day). This doesn't make much sense because I would expect the highest admission to happen during the morning or in the middle of the day, because that is when the most people are awake and would seek treatment. 
+
+This graph shows that there seems to be the peak admission hour is at midnight(start of a new day). This doesn't make much sense because I would expect the highest admission to happen during the morning or in the middle of the day, because that is when the most people are awake and would seek treatment. My best guess for why this could be happening is that the times must be when a large amount of data for the patients is added into the database. Midnight, the start of a new day, may be the time that a portion of data from the previous day is added. 
 
 
 **Solution: Graph for "admission minute"**
@@ -485,7 +486,8 @@ ggplot(admissions_tble, aes(x = minute(admittime))) +
        y = "Count") + 
   theme(legend.position = "NONE")
 ```
-This graph shows that the highest minute of admission is at minute 0. I believe this constitutes as unusual because I would expect the distribution of minute to be relatively uniform. 
+
+This graph shows that the highest minute of admission is at minute 0. I believe this constitutes as unusual because I would expect the distribution of minute to be relatively uniform. The reason for this could be tied with what I mentioned earlier about the data being added at a particular time (midnight). If it is documented at exactly midnight, the data would tend to have a larger portion of minute values being 0.  
 
 **Solution: Graph for "length of hospital stay (from admission to discharge)"** 
 
@@ -502,7 +504,8 @@ ggplot(admissions_tble, aes(x = as.numeric(time_difference_hour))) +
        x = "Time Difference in Hours",
        y = "Count")
 ```
-This graph shows that the majority of values after subtracting the discharge time from the admission time around 0 hours. This does not make sense as you would expect a trip to the hospital to take quite a while, so I would say this is unusual. The dates in the MIMIC IV are known to be shifted to protect patients, which is probably why the times are so unusual.  
+
+This graph shows that the majority of values after subtracting the discharge time from the admission time around 0 hours. This does not make sense as you would expect a trip to the hospital to take quite a while, so I would say this is unusual. The dates in the MIMIC IV are known to be shifted to protect patients, which could be why the times are so unusual.  
 
 ## Q4. `patients` data
 
@@ -540,6 +543,7 @@ ggplot(data = patients_tble, aes(x = as.factor(gender),
        y = "Count",
        fill = "Gender")
 ```
+
 This graph indicates that females make up the majority of the patients, although the gender distribution doesn't seem to be overwhemingly one-sided.  
 
 ```{r}
@@ -549,7 +553,8 @@ ggplot(patients_tble, aes(x = anchor_age)) +
        x = "Anchor Age", 
        y = "Count")
 ```
-The anchor age with the highest counts seem to be under the age of 25. The distribution also appears to steadily decrease as the anchor age increases. 
+
+The anchor age with the highest counts seem to be under the age of 25. The distribution also appears to steadily decrease as the anchor age increases. I would have expected patients to be of older ages to make up the majority of patients, but from the graph, does not seem to be the case. One possible reason for this could be that the anchor ages are not accurate and are shifted to protect the patients' privacy.     
 
 
 ## Q5. Lab results
