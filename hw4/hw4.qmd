@@ -47,6 +47,7 @@ bq_auth(path = satoken)
 ```
 Connect to BigQuery database `mimiciv_3_1` in GCP (Google Cloud Platform), using the project billing account `biostat-203b-2025-winter`.
 ```{r}
+
 # connect to the BigQuery database `biostat-203b-2025-mimiciv_3_1`
 con_bq <- dbConnect(
     bigrquery::bigquery(),
@@ -56,7 +57,9 @@ con_bq <- dbConnect(
 )
 con_bq
 ```
+
 List all tables in the `mimiciv_3_1` database.
+
 ```{r}
 dbListTables(con_bq)
 ```
