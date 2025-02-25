@@ -88,8 +88,9 @@ admissions_tble <- tbl(con_bq, "admissions") |>
 
 Connect to the `patients` table.
 ```{r}
-# # TODO
-# patients_tble <-
+patients_tble <- tbl(con_bq, "patients") |>
+  arrange(subject_id) |>
+  print(width = Inf)
 ```
 
 ### Q1.5 `labevents` data
