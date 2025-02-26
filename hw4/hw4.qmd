@@ -68,10 +68,8 @@ dbListTables(con_bq)
 
 Connect to the `icustays` table.
 ```{r}
-# full ICU stays table
 icustays_tble <- tbl(con_bq, "icustays") |>
   arrange(subject_id, hadm_id, stay_id) |>
-  # show_query() |>
   print(width = Inf) 
 ```
 
@@ -96,10 +94,18 @@ patients_tble <- tbl(con_bq, "patients") |>
 ### Q1.5 `labevents` data
 
 Connect to the `labevents` table and retrieve a subset that only contain subjects who appear in `icustays_tble` and the lab items listed in HW3. Only keep the last lab measurements (by `storetime`) before the ICU stay and pivot lab items to become variables/columns. Write all steps in _one_ chain of pipes.
+
 ```{r}
-# # TODO
-# labevents_tble <- 
+labevents_tble <- tbl(con_bq, "labevents") |>
+  filter(subject_id %in% !!pull(icustays_tble,subject_id)) |>
+  filter(itemid %in% c(50912, 50971, 50983, 50902, 50882,
+                       51221, 51301, 50931)) |> 
+  group_by(subject_id, hadm_id, storetime) |>
+  slice_max(storetime, with_ties = FALSE) |>
+  collect() |>
+  pivot_wider(names_from = itemid, values_from = valuenum)
 ```
+
 
 ### Q1.6 `chartevents` data
 
