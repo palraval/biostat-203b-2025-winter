@@ -30,6 +30,7 @@ library(DBI)
 library(gt)
 library(gtsummary)
 library(tidyverse)
+library(forcats)
 ```
 
 ## Q1. Compile the ICU cohort in HW3 from the Google BigQuery database 
@@ -104,8 +105,12 @@ labevents_tble <- tbl(con_bq, "labevents") |>
   filter(storetime < intime) |>
   group_by(subject_id, stay_id, itemid) |>
   slice_max(storetime, with_ties = FALSE) |>
+  ungroup() |>
   select(subject_id, stay_id, itemid, valuenum) |>
   pivot_wider(names_from = itemid, values_from = valuenum) |>
+  rename(potassium = `50971`,  white_blood_cell_count = `51301`,
+         glucose = `50931`, chloride = `50902`, hematocrit = `51221`,
+         sodium = `50983`, creatinine = `50912`, bicarbonate = `50882`) |>
   print(width = Inf)
 ```
 
@@ -121,30 +126,100 @@ chartevents_tble <- tbl(con_bq, "chartevents") |>
   select(subject_id, stay_id, itemid, valuenum) |>
   summarize(valuenum = round(mean(valuenum), 
            digits = 1), .groups = "drop") |>
+  ungroup() |>
   pivot_wider(names_from = itemid, values_from = valuenum) |>
+  rename(heart_rate = `220045`, body_temperature = `223761`,
+         `diastolic_non-invasive_blood_pressure` = `220180`,
+         respiratory_rate = `220210`, 
+         `systolic_non-invasive_blood_pressure` = `220179`) |>
   print(width = Inf) 
   
 ```
-
+   
 ### Q1.7 Put things together
 
 This step is similar to Q7 of HW3. Using _one_ chain of pipes `|>` to perform following data wrangling steps: (i) start with the `icustays_tble`, (ii) merge in admissions and patients tables, (iii) keep adults only (age at ICU intime >= 18), (iv) merge in the labevents and chartevents tables, (v) `collect` the tibble, (vi) sort `subject_id`, `hadm_id`, `stay_id` and `print(width = Inf)`.
 
 ```{r}
-# # TODO
-# mimic_icu_cohort <- 
-
-#COLLECT HERE
-
+mimic_icu_cohort <- icustays_tble |>
+  left_join(admissions_tble, by = c('subject_id', 'hadm_id')) |>
+  left_join(patients_tble, by = 'subject_id') |>
+  mutate(age_intime = anchor_age + year(intime) - anchor_year) |>
+  filter(age_intime >= 18) |>
+  left_join(labevents_tble, by = c("subject_id", "stay_id")) |>
+  left_join(chartevents_tble, by = c("subject_id", "stay_id")) |>
+  collect() |>
+  arrange(subject_id, hadm_id, stay_id) |>
+  print(width = Inf)
 ```
 
 ### Q1.8 Preprocessing
 
 Perform the following preprocessing steps. (i) Lump infrequent levels into "Other" level for `first_careunit`, `last_careunit`, `admission_type`, `admission_location`, and `discharge_location`. (ii) Collapse the levels of `race` into `ASIAN`, `BLACK`, `HISPANIC`, `WHITE`, and `Other`. (iii) Create a new variable `los_long` that is `TRUE` when `los` is greater than or equal to 2 days. (iv) Summarize the data using `tbl_summary()`, stratified by `los_long`. Hint: `fct_lump_n` and `fct_collapse` from the `forcats` package are useful.
 
-Hint: Below is a numerical summary of my tibble after preprocessing:
 
-<iframe width=95% height="500" src="./mimic_icu_cohort_gtsummary.html"></iframe>
+```{r}
+mimic_icu_cohort$first_careunit = fct_lump_n(
+  as.factor(mimic_icu_cohort$first_careunit), n = 4)
+```
+
+```{r}
+mimic_icu_cohort$last_careunit = fct_lump_n(
+  as.factor(mimic_icu_cohort$last_careunit), n = 4)
+```
+
+```{r}
+mimic_icu_cohort$admission_type = fct_lump_n(
+  as.factor(mimic_icu_cohort$admission_type), n = 4)
+```
+
+```{r}
+mimic_icu_cohort$admission_location = fct_lump_n(
+  as.factor(mimic_icu_cohort$admission_location), n = 3)
+```
+
+```{r}
+mimic_icu_cohort$discharge_location = fct_lump_n(
+  as.factor(mimic_icu_cohort$discharge_location), n = 4)
+```
+
+```{r}
+mimic_icu_cohort$race = fct_collapse(
+  as.factor(mimic_icu_cohort$race), 
+  ASIAN = c("ASIAN - SOUTH EAST ASIAN", "ASIAN", 
+            "ASIAN - CHINESE", "ASIAN - KOREAN", "ASIAN - ASIAN INDIAN"), 
+  BLACK = c("BLACK/AFRICAN AMERICAN", "BLACK/CAPE VERDEAN", "BLACK/AFRICAN", 
+            "BLACK/CARIBBEAN ISLAND"), 
+  HISPANIC = c("HISPANIC/LATINO - SALVADORAN", 
+               "HISPANIC/LATINO - PUERTO RICAN",
+               "HISPANIC OR LATINO", "HISPANIC/LATINO - GUATEMALAN",
+               "HISPANIC/LATINO - CUBAN", "HISPANIC/LATINO - DOMINICAN",
+               "HISPANIC/LATINO - CENTRAL AMERICAN", 
+               "HISPANIC/LATINO - HONDURAN", "HISPANIC/LATINO - COLUMBIAN",
+               "HISPANIC/LATINO - MEXICAN"),
+  WHITE = c("WHITE", "WHITE - RUSSIAN", "WHITE - OTHER EUROPEAN", 
+            "WHITE - BRAZILIAN", "WHITE - EASTERN EUROPEAN"),
+  Other = c("OTHER", "UNKNOWN", "UNABLE TO OBTAIN", "PORTUGUESE", 
+            "PATIENT DECLINED TO ANSWER", "AMERICAN INDIAN/ALASKA NATIVE",
+            "NATIVE HAWAIIAN OR OTHER PACIFIC ISLANDER", "SOUTH AMERICAN",
+            "MULTIPLE RACE/ETHNICITY")
+  )
+```
+
+```{r}
+mimic_icu_cohort$los_long = ifelse(mimic_icu_cohort$los >= 2, TRUE, FALSE)
+```
+
+```{r}
+mimic_icu_cohort |> 
+  tbl_summary(by = los_long, include = -c(subject_id, hadm_id, stay_id,
+                                          intime, outtime, los, admittime,
+                                          dischtime, deathtime, 
+                                          admit_provider_id, edregtime,
+                                          edouttime, hospital_expire_flag,
+                                          anchor_age, anchor_year,
+                                          anchor_year_group))
+```
 
 ### Q1.9 Save the final tibble
 
