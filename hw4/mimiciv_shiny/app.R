@@ -51,10 +51,10 @@ ui <- fluidPage(
     tabPanel("Patient Info",
            sidebarLayout(
              sidebarPanel(
-               numericInput("patient_id",
+               numericInput("patient_id_value",
                            label = "Input Patient ID",
                            value = ""),
-               actionButton("patient_id", "Update Patient ID"),
+               actionButton("updated_patient_id", "Update Patient ID"),
                selectInput("Selected_plot",
                            label = "Select a Plot:",
                            choices = c("ADT", "ICU"))
@@ -128,45 +128,105 @@ server <- function(input, output, session){
   }, caption = "Statistics Table", caption.placement = "top")
 
 
-  output$second_tab_plot = renderPlot({
+  
+# SECOND TAB  
+  
+  
+  reactive_patient_id = reactiveVal(NULL)
+  
+  observeEvent(input$updated_patient_id, {
+    reactive_patient_id(input$patient_id_value)
+  })
+  
+  
+  patientInput = reactive({
+    
+    patient_id = reactive_patient_id()
     
     demographic = tbl(con_bq, "patients") |>
-      filter(subject_id == input$patient_id)
+      filter(subject_id == patient_id) |>
+      collect()
     
     adt = tbl(con_bq, "admissions") |>
-      filter(subject_id == input$patient_id)
+      filter(subject_id == patient_id) |>
+      collect()
     
     color_info = tbl(con_bq, "transfers") |>
-      filter(subject_id == input$patient_id)
+      filter(subject_id == patient_id) |>
+      collect()
     
     shape_info = tbl(con_bq, "procedures_icd") |>
-      filter(subject_id == input$patient_id)
+      filter(subject_id == patient_id) |>
+      collect()
     
     labevents_subset = tbl(con_bq, "labevents") |>
-      filter(subject_id == input$patient_id)
+      filter(subject_id == patient_id) |>
+      collect()
     
     chartevents_subset = tbl(con_bq, "chartevents") |>
-      filter(subject_id == input$patient_id)
+      filter(subject_id == patient_id) |>
+      collect()
     
     diagnoses = tbl(con_bq, "diagnoses_icd") |>
-      filter(subject_id == input$patient_id)
+      filter(subject_id == patient_id) |>
+      collect()
     
     diagnoses = diagnoses |>
-      filter(subject_id == input$patient_id) |>
+      filter(subject_id == patient_id) |>
       head(3)
     
     diagnoses_codes = tbl(con_bq, "d_icd_diagnoses") |>
-      filter(subject_id == input$patient_id)
+      filter(subject_id == patient_id)
     
     diagnoses_codes = diagnoses_codes %>% 
       filter(icd_code %in% diagnoses$icd_code)
     
     items = tbl(con_bq, "d_items.csv.gz") |> 
       filter(abbreviation %in% c("HR", "NBPd","NBPs","RR", 
-                                 "Temperature F"))
+                                 "Temperature F")) |>
+      collect()
     
     chartevents_subset = chartevents_subset %>% 
       filter(itemid %in% items$itemid)
+    
+    list(demographic = demographic,
+         adt = adt,
+         color_info = color_info,
+         shape_info = shape_info,
+         labevents_subset = labevents_subset,
+         chartevents_subset = chartevents_subset,
+         diagnoses_codes = diagnoses_codes,
+         diagnoses = diagnoses,
+         items = items)
+    
+    
+  })
+  
+  
+  
+  
+  output$second_tab_plot = renderPlot({
+    
+    data = patientInput()
+    
+    demographic = data$demographic
+    
+    adt = data$adt
+    
+    color_info = data$color_info
+    
+    shape_info = data$shape_info
+    
+    labevents_subset = data$labevents_subset
+    
+    chartevents_subset = data$chartevents_subset 
+    
+    diagnoses_codes = data$diagnoses_codes 
+    
+    diagnoses = data$diagnoses
+    
+    items = data$items
+  
     
     
     if (input$Selected_plot == "ADT") {
