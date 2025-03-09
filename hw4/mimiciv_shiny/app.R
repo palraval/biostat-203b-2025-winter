@@ -40,7 +40,7 @@ ui <- fluidPage(
                              selected = "demographics"),
                  selectInput("Specificied_variable",
                             label = "Choose a specific variable to display",
-                            choices = NULL)
+                            choices = "insurance")
     ),
               mainPanel(
                 plotOutput("plot"),
@@ -53,11 +53,12 @@ ui <- fluidPage(
              sidebarPanel(
                numericInput("patient_id_value",
                            label = "Input Patient ID",
-                           value = ""),
+                           value = 10001217),
                actionButton("updated_patient_id", "Update Patient ID"),
                selectInput("Selected_plot",
                            label = "Select a Plot:",
-                           choices = c("ADT", "ICU"))
+                           choices = c("ADT", "ICU"),
+                           selected = "ADT")
              ),
              mainPanel(
                plotOutput("second_tab_plot")
@@ -131,8 +132,7 @@ server <- function(input, output, session){
   
 # SECOND TAB  
   
-  
-  reactive_patient_id = reactiveVal(NULL)
+  reactive_patient_id = reactiveVal(10001217)
   
   observeEvent(input$updated_patient_id, {
     reactive_patient_id(input$patient_id_value)
@@ -141,6 +141,7 @@ server <- function(input, output, session){
   
   patientInput = reactive({
     
+    req(reactive_patient_id())
     patient_id = reactive_patient_id()
     
     demographic = tbl(con_bq, "patients") |>
@@ -175,13 +176,12 @@ server <- function(input, output, session){
       filter(subject_id == patient_id) |>
       head(3)
     
-    diagnoses_codes = tbl(con_bq, "d_icd_diagnoses") |>
-      filter(subject_id == patient_id)
+    diagnoses_codes = tbl(con_bq, "d_icd_diagnoses")
     
     diagnoses_codes = diagnoses_codes %>% 
       filter(icd_code %in% diagnoses$icd_code)
     
-    items = tbl(con_bq, "d_items.csv.gz") |> 
+    items = tbl(con_bq, "d_items") |> 
       filter(abbreviation %in% c("HR", "NBPd","NBPs","RR", 
                                  "Temperature F")) |>
       collect()
@@ -203,8 +203,6 @@ server <- function(input, output, session){
   })
   
   
-  
-  
   output$second_tab_plot = renderPlot({
     
     data = patientInput()
@@ -219,9 +217,9 @@ server <- function(input, output, session){
     
     labevents_subset = data$labevents_subset
     
-    chartevents_subset = data$chartevents_subset 
+    chartevents_subset = data$chartevents_subset
     
-    diagnoses_codes = data$diagnoses_codes 
+    diagnoses_codes = data$diagnoses_codes
     
     diagnoses = data$diagnoses
     
@@ -246,17 +244,18 @@ server <- function(input, output, session){
                                           y = "procedure",
                                           shape = icd_code),
                    size = 4) +
-        labs(title = paste0("Patient ", demographic$subject_id, ", ",  
-                            demographic$gender, ", ", demographic$anchor_age, 
-                            " years old ", tolower(adt$race)),
-             subtitle = paste(diagnoses_codes$long_title[1],
-                              diagnoses_codes$long_title[2],
-                              diagnoses_codes$long_title[3],
+        labs(title = paste0("Patient ", demographic |> pull(subject_id), ", ",  
+                            demographic |> pull(gender), ", ", 
+                            demographic|> pull(anchor_age), 
+                            " years old ", tolower(adt |> pull(race))),
+             subtitle = paste(diagnoses_codes |> pull(long_title) %>% .[1],
+                              diagnoses_codes |> pull(long_title) %>% .[2],
+                              diagnoses_codes |> pull(long_title) %>% .[3],
                               sep = "\n"),
              x = "Calendar Time",
              y = "")
     
-    } else {
+    } else { 
         
       labels = c("220045" = "HR",
                  "220179" = "NBPd",
