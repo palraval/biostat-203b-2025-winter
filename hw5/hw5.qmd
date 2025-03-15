@@ -17,19 +17,57 @@ format:
 
 Using the ICU cohort `mimiciv_icu_cohort.rds` you built in Homework 4, develop at least three machine learning approaches (logistic regression with enet regularization, random forest, boosting, SVM, MLP, etc) plus a model stacking approach for predicting whether a patient's ICU stay will be longer than 2 days. You should use the `los_long` variable as the outcome. Your algorithms can use patient demographic information (gender, age at ICU `intime`, marital status, race), ICU admission information (first care unit), the last lab measurements before the ICU stay, and first vital measurements during ICU stay as features. You are welcome to use any feature engineering techniques you think are appropriate; but make sure to not use features that are not available at an ICU stay's `intime`. For instance, `last_careunit` cannot be used in your algorithms. 
 
+```{r}
+library(dbplyr)
+library(tidymodels)
+library(tidyverse)
+```
+
+
 1. Data preprocessing and feature engineering.
 
 ```{r}
-mimic_data = readRDS("~/mimic_icu_cohort.rds")
+mimiciv_icu_cohort = readRDS("~/mimic_icu_cohort.rds")
 
-colnames(mimic_data)
+colnames(mimiciv_icu_cohort)
+```
+
+
+```{r}
+# MAYBE DELETE
+
+mimic_data = mimic_data %>%
+  select(admission_type, insurance, marital_status, race, gender,
+         age_intime, potassium, white_blood_cell_count, glucose,
+         chloride, hematocrit, sodium, creatinine, bicarbonate,
+         heart_rate, body_temperature, `diastolic_non-invasive_blood_pressure`,
+         respiratory_rate, `systolic_non-invasive_blood_pressure`, los_long)
+
+head(mimic_data)
 ```
 
 ```{r}
-
+str(mimiciv_icu_cohort)
 ```
 
+```{r}
+colSums(is.na(mimiciv_icu_cohort))
+```
+```{r}
+colSums(is.na(mim))
+```
 
+```{R}
+dim(mimiciv_icu_cohort)
+```
+
+```{r}
+#removes the 14 rows with los_long being NA
+
+mimiciv_icu_cohort = mimiciv_icu_cohort %>% filter(!is.na(los_long))
+
+dim(mimiciv_icu_cohort)
+```
 
 
 
@@ -54,6 +92,71 @@ data_split <- initial_split(
   )
 ```
 
+
+```{r}
+training_data = training(data_split)
+
+colnames(training_data)
+```
+
+```{r}
+testing_data = testing(data_split)
+
+colnames(testing_data)
+```
+
+```{r}
+# Removing features not used for model training
+
+training_data = training_data %>% select(c(-1, -2, -3, -5, -6, -7, -9, -10,
+                                           -11, -13, -15, -17, -20, -21, -22,
+                                           -24, -25, -26, -27)) 
+
+dim(training_data)
+```
+
+```{r}
+# Removing features not used for model predicition
+
+testing_data = testing_data %>% select(c(-1, -2, -3, -5, -6, -7, -9, -10,
+                                           -11, -13, -15, -17, -20 ,-21, -22,
+                                           -24, -25, -26, -27)) 
+
+dim(testing_data)
+```
+
+
 3. Train and tune the models using the training set.
+
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 4. Compare model classification performance on the test set. Report both the area under ROC curve and accuracy for each machine learning algorithm and the model stacking. Interpret the results. What are the most important features in predicting long ICU stays? How do the models compare in terms of performance and interpretability?
