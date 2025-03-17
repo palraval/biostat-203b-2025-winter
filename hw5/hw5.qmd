@@ -288,8 +288,8 @@ random_forest_workflow = workflow() %>%
 ```
 
 ```{r}
-random_forest_grid = grid_regular(trees(range = c(600L, 750L)), 
-                        mtry(range = c(1L, 5L)), 
+random_forest_grid = grid_regular(trees(range = c(450L, 650L)), 
+                        mtry(range = c(1L, 3L)), 
                         levels = c(5, 5))
 ```
 
@@ -322,29 +322,22 @@ best_random_forest
 
 **Tuning and Training for Stacking**
 
-```{r}
-logistic_res = 
-```
-
 
 ```{r}
 stacking_model = stacks() %>%
   add_candidates(logistic_fit) %>%
   add_candidates(boosting_fit) %>%
   add_candidates(random_forest_fit) %>%
-  control_stack_resamples(rs = folds) %>%
   blend_predictions(penalty = 10^(-4:4),
-                    metrics = c("roc_auc")) %>%
+                    metrics = c("roc_auc", "accuracy")) %>%
   fit_members()
 ```
-
-
-
-
-
-
-
-
+```{r}
+stacking_model
+```
+```{r}
+autoplot(stacking_model)
+```
 
 
 
@@ -390,7 +383,36 @@ random_forest_final_workflow %>%
   collect_metrics()
 ```
 
+**Stacking Model for Testing Data**
 
+```{r}
+los_long_predictions = testing_data %>%
+  bind_cols(predict(stacking_model, ., type = "prob")) %>%
+  print(width = Inf)
+```
+
+```{r}
+yardstick::roc_auc(los_long_predictions, truth = los_long,
+                   contains(".pred_No"))
+```
+
+```{r}
+
+los_long_predictions = los_long_predictions %>%
+  mutate(.pred_class = as.factor(ifelse(.pred_YES > .pred_NO, "YES", "NO")))
+
+yardstick::accuracy(los_long_predictions, truth = los_long,
+                   estimate = .pred_class)
+```
+
+
+LOGISTIC:  AUC(0.6035345), ACCURACY(0.5752917)
+
+BOOSTING:  AUC(0.6416769), ACCURACY(0.6023971)
+
+RANDOM FOREST: AUC(0.6364883), ACCURACY(0.5973149
+
+STACKED MODEL: AUC(0.65), ACCURACY(0.61)
 
 
 
