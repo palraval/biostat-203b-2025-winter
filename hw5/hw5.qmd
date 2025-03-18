@@ -93,7 +93,10 @@ testing_data = testing(data_split)
  random forest, SVM, MLP, etc) plus a model stacking approach for predicting whether a patient's ICU stay will be longer than 2 days
 
 ```{r}
-colSums(is.na(training_data))
+
+#Checks how many NA values are in each column
+
+#colSums(is.na(training_data))
 ```
 
 
@@ -148,6 +151,7 @@ folds = vfold_cv(training_data, v = 5)
 ```
 
 ```{r}
+#| eval: false
 logistic_fit = logistic_workflow %>%
   tune_grid(resamples = folds, grid = parameter_grid, 
             metrics = metric_set(roc_auc, accuracy),
@@ -155,6 +159,7 @@ logistic_fit = logistic_workflow %>%
 ```
 
 ```{r}
+#| eval: false
 logistic_fit %>%
   collect_metrics() %>%
   filter(.metric == "roc_auc") %>%
@@ -165,11 +170,13 @@ logistic_fit %>%
 ```
 
 ```{r}
+#| eval: false
 logistic_fit %>%
   show_best(metric = "roc_auc")
 ```
 
 ```{r}
+#| eval: false
 best_logistic = logistic_fit %>%
   select_best(metric = "roc_auc")
 
@@ -218,10 +225,10 @@ boosting_grid = grid_regular(tree_depth(range = c(1L, 3L)),
                               learn_rate(range = c(-4, 4),
                               trans = log10_trans()),
                               levels = c(2, 10)) 
-# -35, -26
 ```
 
 ```{r}
+#| eval: false
 boosting_fit = boosting_workflow %>%
   tune_grid(resamples = folds, grid = boosting_grid, 
             metrics = metric_set(roc_auc, accuracy),
@@ -229,6 +236,7 @@ boosting_fit = boosting_workflow %>%
 ```
 
 ```{r}
+#| eval: false
 boosting_fit %>%
   collect_metrics() %>%
   filter(.metric == "roc_auc") %>%
@@ -239,11 +247,13 @@ boosting_fit %>%
 ```
 
 ```{r}
+#| eval: false
 boosting_fit %>%
   show_best(metric = "roc_auc")
 ```
 
 ```{r}
+#| eval: false
 best_boosting = boosting_fit %>%
   select_best(metric = "roc_auc")
 
@@ -294,6 +304,7 @@ random_forest_grid = grid_regular(trees(range = c(450L, 650L)),
 ```
 
 ```{r}
+#| eval: false
 random_forest_fit = random_forest_workflow %>% tune_grid(resamples = folds, 
                                      grid = random_forest_grid, 
                                      metrics = metric_set(roc_auc, accuracy),
@@ -301,6 +312,7 @@ random_forest_fit = random_forest_workflow %>% tune_grid(resamples = folds,
 ```
 
 ```{r}
+#| eval: false
 random_forest_fit %>% 
   collect_metrics() %>%
   filter(.metric == "roc_auc") %>%
@@ -310,10 +322,12 @@ random_forest_fit %>%
 ```
 
 ```{r}
+#| eval: false
 random_forest_fit %>% show_best(metric = "roc_auc")
 ```
 
 ```{r}
+#| eval: false
 best_random_forest = random_forest_fit %>%
   select_best(metric = "roc_auc")
 
@@ -324,6 +338,7 @@ best_random_forest
 
 
 ```{r}
+#| eval: false
 stacking_model = stacks() %>%
   add_candidates(logistic_fit) %>%
   add_candidates(boosting_fit) %>%
@@ -333,9 +348,11 @@ stacking_model = stacks() %>%
   fit_members()
 ```
 ```{r}
+#| eval: false
 stacking_model
 ```
 ```{r}
+#| eval: false
 autoplot(stacking_model)
 ```
 
@@ -346,11 +363,13 @@ autoplot(stacking_model)
 **Logistic Regression Model for Testing Data**
 
 ```{r}
+#| eval: false
 logistic_final_workflow = logistic_workflow %>%
   finalize_workflow(best_logistic)
 ```
 
 ```{r}
+#| eval: false
 logistic_final_workflow %>%
   last_fit(data_split) %>%
   collect_metrics()
@@ -360,11 +379,13 @@ logistic_final_workflow %>%
 **Boosting Model for Testing Data**
 
 ```{r}
+#| eval: false
 boosting_final_workflow = boosting_workflow %>%
   finalize_workflow(best_boosting)
 ```
 
 ```{r}
+#| eval: false
 boosting_final_workflow %>%
   last_fit(data_split) %>%
   collect_metrics()
@@ -373,11 +394,13 @@ boosting_final_workflow %>%
 **Random Forest Model for Testing Data**
 
 ```{r}
+#| eval: false
 random_forest_final_workflow = random_forest_workflow %>%
   finalize_workflow(best_random_forest)
 ```
 
 ```{r}
+#| eval: false
 random_forest_final_workflow %>%
   last_fit(data_split) %>%
   collect_metrics()
@@ -386,18 +409,20 @@ random_forest_final_workflow %>%
 **Stacking Model for Testing Data**
 
 ```{r}
+#| eval: false
 los_long_predictions = testing_data %>%
   bind_cols(predict(stacking_model, ., type = "prob")) %>%
   print(width = Inf)
 ```
 
 ```{r}
+#| eval: false
 yardstick::roc_auc(los_long_predictions, truth = los_long,
                    contains(".pred_No"))
 ```
 
 ```{r}
-
+#| eval: false
 los_long_predictions = los_long_predictions %>%
   mutate(.pred_class = as.factor(ifelse(.pred_YES > .pred_NO, "YES", "NO")))
 
@@ -406,13 +431,23 @@ yardstick::accuracy(los_long_predictions, truth = los_long,
 ```
 
 
-LOGISTIC:  AUC(0.6035345), ACCURACY(0.5752917)
+```{r}
+#| eval: false
+xgb.importance(model = boosting_final_workflow %>%
+  last_fit(data_split) %>%
+  extract_fit_engine())
+```
 
-BOOSTING:  AUC(0.6416769), ACCURACY(0.6023971)
+The top 3 most important features to predict whether length of stay is long according to the boosting model are: body temperature, systolic non-invasive blood pressure, and respiratory rate. 
 
-RANDOM FOREST: AUC(0.6364883), ACCURACY(0.5973149
+The Logistic Model had an AUC of about 0.60, while the accuracy was around 0.578.
+The Boosting Model had an AUC of around 0.64, while the accuracy was 0.60.
+The Random Forest Model had an AUC of around 0.64, while the accuracy was 0.60.
+The Stacked Model had an AUC of 0.64 with an accuracy of 0.61.
 
-STACKED MODEL: AUC(0.65), ACCURACY(0.61)
+The Stacked Model seemed to have the best performance in terms of both AUC and accuracy compared to each of the models individually. While the AUC value was around the same for the Stacked Model alongside the Boosting and Random Forest Model, its accuracy was better. The Logistic Model seemed to have the worst performance. Its AUC and accuracy values were the lowest compared to the values of the other models. 
+
+In terms of interpretability, I would say that none of these models seemed to be that great at predicting if the length of stay is long or not. A coin toss has a probability of 0.50, so an AUC or accuracy value of around 0.6 isn't too impressive. 
 
 
 
