@@ -30,7 +30,7 @@ library(stacks)
 1. Data preprocessing and feature engineering.
 
 ```{r}
-mimiciv_icu_cohort = readRDS("~/mimic_icu_cohort.rds")
+mimiciv_icu_cohort = readRDS("../hw4/mimiciv_shiny/mimic_icu_cohort.rds")
 ```
 
 ```{r}
@@ -53,7 +53,6 @@ mimiciv_icu_cohort = mimiciv_icu_cohort %>%
 
 2. Partition data into 50% training set and 50% test set. Stratify partitioning according to `los_long`. For grading purpose, sort the data by `subject_id`, `hadm_id`, and `stay_id` and use the seed `203` for the initial data split. Below is the sample code.
 ```{r}
-#| eval: false
 set.seed(203)
 
 # sort
@@ -149,7 +148,6 @@ folds = vfold_cv(training_data, v = 5)
 ```
 
 ```{r}
-#| eval: false
 logistic_fit = logistic_workflow %>%
   tune_grid(resamples = folds, grid = parameter_grid, 
             metrics = metric_set(roc_auc, accuracy),
@@ -157,7 +155,6 @@ logistic_fit = logistic_workflow %>%
 ```
 
 ```{r}
-#| eval: false
 logistic_fit %>%
   collect_metrics() %>%
   filter(.metric == "roc_auc") %>%
@@ -168,13 +165,11 @@ logistic_fit %>%
 ```
 
 ```{r}
-#| eval: false
 logistic_fit %>%
   show_best(metric = "roc_auc")
 ```
 
 ```{r}
-#| eval: false
 best_logistic = logistic_fit %>%
   select_best(metric = "roc_auc")
 
@@ -226,7 +221,6 @@ boosting_grid = grid_regular(tree_depth(range = c(1L, 3L)),
 ```
 
 ```{r}
-#| eval: false
 boosting_fit = boosting_workflow %>%
   tune_grid(resamples = folds, grid = boosting_grid, 
             metrics = metric_set(roc_auc, accuracy),
@@ -234,7 +228,6 @@ boosting_fit = boosting_workflow %>%
 ```
 
 ```{r}
-#| eval: false
 boosting_fit %>%
   collect_metrics() %>%
   filter(.metric == "roc_auc") %>%
@@ -245,13 +238,11 @@ boosting_fit %>%
 ```
 
 ```{r}
-#| eval: false
 boosting_fit %>%
   show_best(metric = "roc_auc")
 ```
 
 ```{r}
-#| eval: false
 best_boosting = boosting_fit %>%
   select_best(metric = "roc_auc")
 
@@ -302,7 +293,6 @@ random_forest_grid = grid_regular(trees(range = c(450L, 650L)),
 ```
 
 ```{r}
-#| eval: false
 random_forest_fit = random_forest_workflow %>% tune_grid(resamples = folds, 
                                      grid = random_forest_grid, 
                                      metrics = metric_set(roc_auc, accuracy),
@@ -310,7 +300,6 @@ random_forest_fit = random_forest_workflow %>% tune_grid(resamples = folds,
 ```
 
 ```{r}
-#| eval: false
 random_forest_fit %>% 
   collect_metrics() %>%
   filter(.metric == "roc_auc") %>%
@@ -320,12 +309,10 @@ random_forest_fit %>%
 ```
 
 ```{r}
-#| eval: false
 random_forest_fit %>% show_best(metric = "roc_auc")
 ```
 
 ```{r}
-#| eval: false
 best_random_forest = random_forest_fit %>%
   select_best(metric = "roc_auc")
 
@@ -336,7 +323,6 @@ best_random_forest
 
 
 ```{r}
-#| eval: false
 stacking_model = stacks() %>%
   add_candidates(logistic_fit) %>%
   add_candidates(boosting_fit) %>%
@@ -345,12 +331,14 @@ stacking_model = stacks() %>%
                     metrics = c("roc_auc", "accuracy")) %>%
   fit_members()
 ```
+
+
 ```{r}
-#| eval: false
 stacking_model
 ```
+
+
 ```{r}
-#| eval: false
 autoplot(stacking_model)
 ```
 
@@ -366,13 +354,11 @@ autoplot(stacking_model, type = "weights")
 **Logistic Regression Model for Testing Data**
 
 ```{r}
-#| eval: false
 logistic_final_workflow = logistic_workflow %>%
   finalize_workflow(best_logistic)
 ```
 
 ```{r}
-#| eval: false
 logistic_final_workflow %>%
   last_fit(data_split) %>%
   collect_metrics()
@@ -382,13 +368,11 @@ logistic_final_workflow %>%
 **Boosting Model for Testing Data**
 
 ```{r}
-#| eval: false
 boosting_final_workflow = boosting_workflow %>%
   finalize_workflow(best_boosting)
 ```
 
 ```{r}
-#| eval: false
 boosting_final_workflow %>%
   last_fit(data_split) %>%
   collect_metrics()
@@ -397,13 +381,11 @@ boosting_final_workflow %>%
 **Random Forest Model for Testing Data**
 
 ```{r}
-#| eval: false
 random_forest_final_workflow = random_forest_workflow %>%
   finalize_workflow(best_random_forest)
 ```
 
 ```{r}
-#| eval: false
 random_forest_final_workflow %>%
   last_fit(data_split) %>%
   collect_metrics()
@@ -412,20 +394,17 @@ random_forest_final_workflow %>%
 **Stacking Model for Testing Data**
 
 ```{r}
-#| eval: false
 los_long_predictions = testing_data %>%
   bind_cols(predict(stacking_model, ., type = "prob")) %>%
   print(width = Inf)
 ```
 
 ```{r}
-#| eval: false
 yardstick::roc_auc(los_long_predictions, truth = los_long,
                    contains(".pred_No"))
 ```
 
 ```{r}
-#| eval: false
 los_long_predictions = los_long_predictions %>%
   mutate(.pred_class = as.factor(ifelse(.pred_YES > .pred_NO, "YES", "NO")))
 
@@ -435,7 +414,6 @@ yardstick::accuracy(los_long_predictions, truth = los_long,
 
 
 ```{r}
-#| eval: false
 xgb.importance(model = boosting_final_workflow %>%
   last_fit(data_split) %>%
   extract_fit_engine())
