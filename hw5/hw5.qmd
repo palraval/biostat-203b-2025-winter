@@ -90,8 +90,6 @@ testing_data = testing(data_split)
 
 3. Train and tune the models using the training set.
 
- random forest, SVM, MLP, etc) plus a model stacking approach for predicting whether a patient's ICU stay will be longer than 2 days
-
 ```{r}
 
 #Checks how many NA values are in each column
@@ -356,6 +354,11 @@ stacking_model
 autoplot(stacking_model)
 ```
 
+```{r}
+# Plot shows impact of each model in the stacking model
+
+autoplot(stacking_model, type = "weights")
+```
 
 
 4. Compare model classification performance on the test set. Report both the area under ROC curve and accuracy for each machine learning algorithm and the model stacking. Interpret the results. What are the most important features in predicting long ICU stays? How do the models compare in terms of performance and interpretability?
@@ -447,7 +450,7 @@ The Stacked Model had an AUC of 0.64 with an accuracy of 0.61.
 
 The Stacked Model seemed to have the best performance in terms of both AUC and accuracy compared to each of the models individually. While the AUC value was around the same for the Stacked Model alongside the Boosting and Random Forest Model, its accuracy was better. The Logistic Model seemed to have the worst performance. Its AUC and accuracy values were the lowest compared to the values of the other models. 
 
-In terms of interpretability, I would say that none of these models seemed to be that great at predicting if the length of stay is long or not. A coin toss has a probability of 0.50, so an AUC or accuracy value of around 0.6 isn't too impressive. 
+In terms of interpretability, I would say that none of these models seemed to be that great at predicting if the length of stay is long or not. A coin toss has a probability of 0.50, so an AUC or accuracy value of around 0.6 isn't too impressive in comparison. 
 
 
 
